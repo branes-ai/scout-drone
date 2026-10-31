@@ -1,0 +1,10 @@
+# A scenario on the forest field, for the config tests.
+name: forest-test
+field: ../../../fields/forest-60.yaml
+vehicle: ../../../vehicles/rp1.yaml
+duration_s: 60
+seed: 1700
+speed_limit_m_s: 8.0
+sim:
+  oracle_range_m: 12.0
+  oracle_sigma_m: 0.05

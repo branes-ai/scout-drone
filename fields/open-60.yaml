@@ -1,0 +1,15 @@
+# An open field, 60 × 30 m, with no obstacles: the start on the pad at one end,
+# the goal 50 m away at 2 m. S0's check that the stack flies at all
+# (docs/plan/bring-up/, acceptance 5).
+#
+# Field frame: x along the field, y across it, z up; origin at a ground corner.
+name: open-60
+geofence:
+  min_m: [0.0, 0.0, 0.0]
+  max_m: [60.0, 30.0, 10.0]
+start:
+  position_m: [5.0, 15.0, 0.1]
+  yaw_rad: 0.0
+goal:
+  position_m: [55.0, 15.0, 2.0]
+  radius_m: 1.0
