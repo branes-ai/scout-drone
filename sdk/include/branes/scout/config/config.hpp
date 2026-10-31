@@ -1,15 +1,17 @@
 #pragma once
 /// @file config.hpp
-/// @brief Scout's configs: the field and scenario files.
+/// @brief Scout's configs: the field, scenario and baseline files.
 ///
-/// The vehicle and scenario loaders are anatomy's (mobility/config/); this
-/// header adds what scout supplies to them, its scenario schema, and the
-/// loaders built on it, so scout code loads its files with one-argument
-/// calls. The field file is scout's own (field.hpp).
+/// The vehicle, scenario and baseline loaders are anatomy's (mobility/config/,
+/// config/baseline.hpp); this header adds what scout supplies to them, its
+/// scenario schema and its slot list, and the loaders built on them, so scout
+/// code loads its files with one-argument calls. The field file is scout's
+/// own (field.hpp).
 ///
 /// Configs are load-time data and are stored in double. Components that run
 /// in another scalar type convert what they need (e.g. cast<T>(Field)).
 
+#include <branes/anatomy/config/baseline.hpp>
 #include <branes/anatomy/mobility/config/scenario.hpp>
 #include <branes/scout/config/field.hpp>
 
@@ -21,6 +23,7 @@
 
 namespace branes::scout::config {
 
+using anatomy::config::BaselineConfig;
 using anatomy::config::ScenarioConfig;
 
 // ── Scenario ────────────────────────────────────────────────────────
@@ -77,6 +80,34 @@ parse_scenario(std::string_view yaml, std::string_view origin, const std::filesy
         return c.error().to_string();
     }
     return field_for_seed(*c, s.seed);
+}
+
+// ── Baseline ────────────────────────────────────────────────────────
+
+/// Scout's six slots (slots/slots.hpp), sorted: the names a baseline's
+/// `composition:` block gives an implementation each (cmake/slot_registry.cmake).
+inline constexpr std::array<std::string_view, 6> kSlotNames = {
+    "controller",
+    "daa_tracker",
+    "estimator",
+    "fc_bridge",
+    "planner",
+    "safety_filter",
+};
+
+[[nodiscard]] inline anatomy::result<BaselineConfig, ConfigError> load_baseline(const std::filesystem::path& path) {
+    return anatomy::config::load_baseline(path, kSlotNames);
+}
+
+[[nodiscard]] inline anatomy::result<BaselineConfig, ConfigError> parse_baseline(std::string_view yaml,
+                                                                                 std::string_view origin) {
+    return anatomy::config::parse_baseline(yaml, origin, kSlotNames);
+}
+
+/// SHA-256 (hex) of scout's canonical composition — identical to the hash
+/// cmake/baselines.cmake compiles into each scout binary.
+[[nodiscard]] inline std::string composition_hash(const BaselineConfig& b) {
+    return anatomy::config::composition_hash(b, kSlotNames);
 }
 
 }  // namespace branes::scout::config
