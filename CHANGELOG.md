@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/branes-ai/scout-drone/compare/v0.2.0...v0.3.0) (2026-10-31)
+
+
+### Features
+
+* add scout's slots, stack and first two baselines ([#9](https://github.com/branes-ai/scout-drone/issues/9)) ([0eb4940](https://github.com/branes-ai/scout-drone/commit/0eb4940fcc2567da80eec7a0679bbbefca22388d))
+
 ## [0.2.0](https://github.com/branes-ai/scout-drone/compare/v0.1.0...v0.2.0) (2026-10-31)
 
 
