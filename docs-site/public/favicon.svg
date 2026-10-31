@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-label="Scout Drone">
+  <rect width="320" height="320" rx="64" fill="#0f2318"/>
+  <polyline points="60,240 130,130 170,190 210,110 260,240" fill="none" stroke="#3fbf73" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="210" cy="70" r="24" fill="#c4f0d4"/>
+</svg>
