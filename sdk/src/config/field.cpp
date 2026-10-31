@@ -170,7 +170,11 @@ std::string emit_field(const FieldConfig& c) {
 
 std::uint32_t generated_count(const FieldGeneration& g, const anatomy::Geofence<double>& f) {
     const double area = (f.max[0] - f.min[0]) * (f.max[1] - f.min[1]);
-    return static_cast<std::uint32_t>(std::llround(g.density_per_m2 * area));
+    const double n = std::round(g.density_per_m2 * area);
+    if (!(n <= static_cast<double>(kMaxObstacles))) {
+        return kMaxObstacles + 1;  // saturate, so every caller rejects it (also NaN and ∞)
+    }
+    return static_cast<std::uint32_t>(n);
 }
 
 anatomy::result<Field<double>, std::string> field_for_seed(const FieldConfig& c, std::uint64_t seed) {

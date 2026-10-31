@@ -64,7 +64,8 @@ struct FieldConfig {
 [[nodiscard]] std::string emit_field(const FieldConfig& c);
 
 /// The number of obstacles `g` generates on `f`'s geofence: the density times
-/// the ground area, rounded to the nearest integer.
+/// the ground area, rounded to the nearest integer. A count above kMaxObstacles
+/// saturates at kMaxObstacles + 1, so it can't wrap round to a small one.
 [[nodiscard]] std::uint32_t generated_count(const FieldGeneration& g, const anatomy::Geofence<double>& f);
 
 /// The field a run seeded `seed` flies: `c`'s listed obstacles, then, if `c`

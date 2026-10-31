@@ -91,6 +91,11 @@ TEST_CASE("field file: each error names its key", "[field][config]") {
                            "clear_radius_m: 4}\n") ==
           "generate.density_per_m2: the listed and generated obstacles must number at most " +
               std::to_string(kMaxObstacles));
+    // Far beyond any count: rejected, not wrapped round to a small one.
+    CHECK(error_of(kHead + "generate: {density_per_m2: 1e30, radius_m: [0.2, 0.4], height_m: [4, 8], "
+                           "clear_radius_m: 4}\n") ==
+          "generate.density_per_m2: the listed and generated obstacles must number at most " +
+              std::to_string(kMaxObstacles));
 }
 
 TEST_CASE("field of a seed: a listed field is the same for every seed", "[field][config]") {
