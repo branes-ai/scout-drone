@@ -1,0 +1,58 @@
+---
+title: Scout Drone
+description: The Branes.AI mission repo for flight to a goal through terrain never seen, without maps.
+template: splash
+hero:
+  tagline: A quadrotor that reaches its goal fast, through terrain it has never seen, and without a map.
+  image:
+    file: ../../assets/hero.svg
+  actions:
+    - text: Get Started
+      link: ./getting-started/introduction/
+      icon: right-arrow
+    - text: View on GitHub
+      link: https://github.com/branes-ai/scout-drone
+      icon: external
+      variant: minimal
+---
+
+{/* The site's landing page. It is MDX for the hero and the cards;
+    docs/README.md is the documentation map. */}
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## What Scout Drone is
+
+**Scout Drone** is a mission repo of the Branes.AI platform. Its vehicle flies
+to a goal through unknown, static clutter, with onboard sensing only, and is
+scored by its success rate against speed. It is built on
+[Anatomy](https://branes-ai.github.io/anatomy/), the mission framework, as its
+second client after [Racing Drone](https://branes-ai.github.io/racing-drone/).
+
+<CardGrid>
+	<Card title="A world of its own" icon="star">
+		A field: a start, a goal, a geofence, and static obstacles, listed or
+		generated from the seed.
+	</Card>
+	<Card title="Anatomy's mechanism" icon="puzzle">
+		Slots and composition, the replay log, the harness and the closed-loop
+		simulator come from Anatomy, not a copy of it.
+	</Card>
+	<Card title="Scored by success against speed" icon="rocket">
+		Each run reaches the goal, collides, leaves the geofence or times out. A
+		batch gives the success rate at each speed.
+	</Card>
+	<Card title="Algorithms in the platform" icon="setting">
+		Depth perception and planning belong in Cortex, the network in Synapse,
+		and the safety filter in Reflex.
+	</Card>
+</CardGrid>
+
+## Where to go next
+
+- **[Introduction](getting-started/introduction.md)**: the mission, and where it fits.
+- **[Build & Test](getting-started/build-and-test.md)**: build the library and run its tests.
+- **[The bring-up plan](plan/bring-up/README.md)**: how scout-drone comes up on Anatomy.
+
+> Status: the repo is being brought up (S0a of the
+> [plan](https://github.com/branes-ai/scout-drone/issues/2)).
