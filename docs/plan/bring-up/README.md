@@ -8,7 +8,7 @@ Step 3 of racing-drone's [ADR 0008](https://github.com/branes-ai/racing-drone/bl
 
 ## Goal
 
-1. **scout-drone is a mission repo like racing-drone,** built on anatomy v0.4.0 (core, mobility, glue, mobility_sim): its build, CI, releases, docs and docs site.
+1. **scout-drone is a mission repo like racing-drone,** built on anatomy v0.5.0 (core, mobility, glue, mobility_sim): its build, CI, releases, docs and docs site.
 2. **It flies its first mission, S0:** from a start pose to a goal through a field of static obstacles. The stack sees the obstacles through an oracle sensor computed from truth.
 3. **Every anatomy assumption S0 runs into is fixed in anatomy,** with racing-drone's outputs byte-identical.
 
@@ -112,5 +112,5 @@ S0b–S0d may each wait on an anatomy PR. Where anatomy's change is needed first
 
 - **The straight-line baseline makes a weak lower bound** on a dense field. That's intended: the number to beat is the success rate of flying blind.
 - **The oracle is not perception.** Results with the oracle bound a real depth pipeline from above. They're reported as oracle results.
-- **An anatomy change can ripple into racing-drone.** Racing-drone pins v0.3.0, and anatomy is at v0.4.0. A change that S0 needs ships in a release racing-drone hasn't adopted. The byte-identity check runs against racing-drone at the newest anatomy, so the next bump stays safe.
+- **An anatomy change can ripple into racing-drone.** Racing-drone pins v0.3.0, and anatomy is at v0.5.0. A change that S0 needs ships in a release racing-drone hasn't adopted. The byte-identity check runs against racing-drone at the newest anatomy, so the next bump stays safe.
 - **The vehicle is racing's RP-1** until scout-drone has a vehicle of its own. Its configs are copied into `vehicles/`, not shared, because a vehicle is mission data.
