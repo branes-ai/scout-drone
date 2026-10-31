@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/branes-ai/scout-drone/compare/v0.1.0...v0.2.0) (2026-10-31)
+
+
+### Features
+
+* add the field, scout's world, with its file and generated obstacles ([#7](https://github.com/branes-ai/scout-drone/issues/7)) ([bcbf5d7](https://github.com/branes-ai/scout-drone/commit/bcbf5d77b70aa2f34b32f10f77f9ad0c1525d41c))
+
 ## 0.1.0 (2026-10-31)
 
 
