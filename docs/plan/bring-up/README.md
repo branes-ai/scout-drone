@@ -89,9 +89,9 @@ S0b–S0d may each wait on an anatomy PR. Where anatomy's change is needed first
 | PR | Repo | State |
 |---|---|---|
 | S0a | scout-drone | Merged as [#3](https://github.com/branes-ai/scout-drone/pull/3) |
-| A1 | anatomy | [#23](https://github.com/branes-ai/anatomy/pull/23): the YAML helpers, public (assumption 7). racing-drone byte-identical |
-| A2 | anatomy | [#24](https://github.com/branes-ai/anatomy/pull/24): `stream_seed` in the core (assumption 1). racing-drone byte-identical |
-| S0b | scout-drone | The field, its file, the generated obstacles and the scenario schema, on anatomy with A1 and A2 |
+| A1 | anatomy | Merged as [#23](https://github.com/branes-ai/anatomy/pull/23): the YAML helpers, public (assumption 7). racing-drone byte-identical. Released in v0.5.0 |
+| A2 | anatomy | Merged as [#24](https://github.com/branes-ai/anatomy/pull/24): `stream_seed` in the core (assumption 1). racing-drone byte-identical. Released in v0.5.0 |
+| S0b | scout-drone | The field, its file, the generated obstacles and the scenario schema, on anatomy v0.5.0 |
 
 ## Acceptance (stated before any test is run)
 
