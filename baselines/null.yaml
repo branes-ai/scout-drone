@@ -1,0 +1,16 @@
+# The null baseline: a stateless stub in every slot.
+#
+# It exercises the framework end to end (composition, harnesses, log, replay)
+# before any real component exists: the vehicle stays on the pad, and a run
+# ends at its duration. The `composition:` block is read at configure time
+# (cmake/baselines.cmake); `parameters:` at startup.
+name: "null"   # quoted: a bare null is YAML null, not a string
+composition:
+  estimator: NullEstimator
+  planner: NullPlanner
+  controller: NullController
+  safety_filter: NullSafetyFilter
+  daa_tracker: NullDaaTracker
+  fc_bridge: NullFcBridge
+parameters:
+  control_rate_hz: 100
