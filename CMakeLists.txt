@@ -37,6 +37,13 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/warnings.cmake)
 # channels (docs/plan/bring-up/). The mission-neutral framework is anatomy.
 add_subdirectory(sdk)
 
+# Baselines: one composition per baselines/<name>.yaml, over scout's slot
+# registry (racing-drone docs/adr/0001-baseline-composition-framework.md).
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/slot_registry.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/baselines.cmake)
+scout_add_baseline(null)
+scout_add_baseline(s0-gt-pid)
+
 if(SCOUT_BUILD_TESTS AND BUILD_TESTING)
     add_subdirectory(tests)
 endif()
