@@ -1,0 +1,6 @@
+# A scenario that sets none of scout's `sim:` parameters, for the config tests.
+name: defaults-test
+field: ../../../fields/open-60.yaml
+vehicle: ../../../vehicles/rp1.yaml
+duration_s: 30
+seed: 7

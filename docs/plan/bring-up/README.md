@@ -8,7 +8,7 @@ Step 3 of racing-drone's [ADR 0008](https://github.com/branes-ai/racing-drone/bl
 
 ## Goal
 
-1. **scout-drone is a mission repo like racing-drone,** built on anatomy v0.4.0 (core, mobility, glue, mobility_sim): its build, CI, releases, docs and docs site.
+1. **scout-drone is a mission repo like racing-drone,** built on anatomy v0.5.0 (core, mobility, glue, mobility_sim): its build, CI, releases, docs and docs site.
 2. **It flies its first mission, S0:** from a start pose to a goal through a field of static obstacles. The stack sees the obstacles through an oracle sensor computed from truth.
 3. **Every anatomy assumption S0 runs into is fixed in anatomy,** with racing-drone's outputs byte-identical.
 
@@ -61,11 +61,13 @@ There's no gate detector. The oracle stands in for perception until cortex's dep
 These are the assumptions to check, from reading anatomy. S0 confirms or rules out each one. A confirmed one gets an anatomy PR, released, and scout-drone moves its pin.
 
 1. **The world is fixed.** `BasicSlotContext<World>` and `BasicSimulator` take the world as given. A field generated from the seed needs the seed before the world exists, and a draw stream that doesn't shift the simulator's own streams.
+   - **S0b: confirmed in part.** The world needs no change: scout builds the field from its file and the seed (`config::field_for_seed`) before it hands the field to anatomy. The stream did: its derivation was a static member of the simulator's class template, out of reach of a mission's core library. It moves to the core, `anatomy::stream_seed` ([anatomy#24](https://github.com/branes-ai/anatomy/pull/24)).
 2. **The geofence comes from the world.** Racing's `Stack` passes `map_.geofence` to the safety filter. A field must carry one too, or the safety filter's contract must take it from somewhere else.
 3. **The oracle sees only the truth.** `OracleSensor::observe(truth, t)` takes no random stream. Noisy obstacle observations need one that is deterministic in the seed, as racing's corner noise is.
 4. **Mission channel ids.** Racing's `oracle_gates` is id 5. A second mission may pick the same id for a different channel. The registry rule (ADR 0001, amendment 5) leaves a mission's ids to the mission, and `log_dump` must name them.
 5. **The run ends at the duration, or when the scorer stops it.** A run that reaches the goal must stop cleanly, and a vehicle that hovers at the goal must not count as a failure.
 6. **Names.** racing-drone reaches anatomy through bridge headers. scout-drone uses anatomy's names directly, in `branes::scout`. If something is reachable only through a bridge, that's an anatomy gap.
+7. **The YAML helpers are private.** Not in this list as first written; found in S0b. A mission's world file is loaded with the helpers anatomy's own loaders use, but they were private to anatomy's `sdk/src/config/`, and racing-drone keeps a copy. **Confirmed:** they become a public library, `branes::anatomy_yaml` ([anatomy#23](https://github.com/branes-ai/anatomy/pull/23)).
 
 Each change to anatomy must keep racing-drone's outputs byte-identical (its `tools/compare_outputs.sh`, the reference-log fixture, and gates P0 and P1), as in steps 1 and 2.
 
@@ -81,6 +83,15 @@ Each change to anatomy must keep racing-drone's outputs byte-identical (its `too
 | **R** | racing-drone | ADR 0008's current state: step 5.3 done, with links to this plan |
 
 S0b–S0d may each wait on an anatomy PR. Where anatomy's change is needed first, it lands and is released before the scout-drone PR that needs it.
+
+## Progress
+
+| PR | Repo | State |
+|---|---|---|
+| S0a | scout-drone | Merged as [#3](https://github.com/branes-ai/scout-drone/pull/3) |
+| A1 | anatomy | Merged as [#23](https://github.com/branes-ai/anatomy/pull/23): the YAML helpers, public (assumption 7). racing-drone byte-identical. Released in v0.5.0 |
+| A2 | anatomy | Merged as [#24](https://github.com/branes-ai/anatomy/pull/24): `stream_seed` in the core (assumption 1). racing-drone byte-identical. Released in v0.5.0 |
+| S0b | scout-drone | The field, its file, the generated obstacles and the scenario schema, on anatomy v0.5.0 |
 
 ## Acceptance (stated before any test is run)
 
@@ -101,5 +112,5 @@ S0b–S0d may each wait on an anatomy PR. Where anatomy's change is needed first
 
 - **The straight-line baseline makes a weak lower bound** on a dense field. That's intended: the number to beat is the success rate of flying blind.
 - **The oracle is not perception.** Results with the oracle bound a real depth pipeline from above. They're reported as oracle results.
-- **An anatomy change can ripple into racing-drone.** Racing-drone pins v0.3.0, and anatomy is at v0.4.0. A change that S0 needs ships in a release racing-drone hasn't adopted. The byte-identity check runs against racing-drone at the newest anatomy, so the next bump stays safe.
+- **An anatomy change can ripple into racing-drone.** Racing-drone pins v0.3.0, and anatomy is at v0.5.0. A change that S0 needs ships in a release racing-drone hasn't adopted. The byte-identity check runs against racing-drone at the newest anatomy, so the next bump stays safe.
 - **The vehicle is racing's RP-1** until scout-drone has a vehicle of its own. Its configs are copied into `vehicles/`, not shared, because a vehicle is mission data.
