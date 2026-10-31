@@ -1,0 +1,21 @@
+# The open field with a forest generated on it: trunks of 0.15–0.4 m radius,
+# 0.03 per m² of ground (54 on 60 × 30 m), none within 4 m of the start or the
+# goal. Each seed grows a different forest (config::field_for_seed). S0's
+# obstacle field (docs/plan/bring-up/, acceptance 5).
+#
+# Field frame: x along the field, y across it, z up; origin at a ground corner.
+name: forest-60
+geofence:
+  min_m: [0.0, 0.0, 0.0]
+  max_m: [60.0, 30.0, 10.0]
+start:
+  position_m: [5.0, 15.0, 0.1]
+  yaw_rad: 0.0
+goal:
+  position_m: [55.0, 15.0, 2.0]
+  radius_m: 1.0
+generate:
+  density_per_m2: 0.03
+  radius_m: [0.15, 0.4]
+  height_m: [4.0, 10.0]
+  clear_radius_m: 4.0
