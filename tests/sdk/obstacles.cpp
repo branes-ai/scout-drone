@@ -56,6 +56,12 @@ TEST_CASE("obstacles: valid() holds the count and each obstacle in use to its in
     auto nan = two_seen();
     nan.obstacles[0].position[2] = std::numeric_limits<double>::quiet_NaN();
     CHECK_FALSE(valid(nan));  // I2
+    auto wide = two_seen();
+    wide.obstacles[1].radius = std::numeric_limits<double>::infinity();
+    CHECK_FALSE(valid(wide));  // I2: finite
+    auto tall = two_seen();
+    tall.obstacles[0].height = std::numeric_limits<double>::infinity();
+    CHECK_FALSE(valid(tall));  // I2: finite
 
     auto unused = two_seen();
     unused.obstacles[5].radius = -3;  // beyond count: not in use

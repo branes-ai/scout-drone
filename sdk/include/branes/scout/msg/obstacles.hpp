@@ -21,7 +21,7 @@
 /// Invariants (valid())
 /// ----------
 ///   I1: count ≤ kMaxVisibleObstacles
-///   I2: every obstacle in use has a finite position, radius > 0 and height > 0
+///   I2: every obstacle in use has a finite position, and a finite radius > 0 and height > 0
 
 #include <branes/anatomy/msg/geometry.hpp>
 #include <branes/anatomy/msg/time.hpp>
@@ -62,8 +62,8 @@ template <typename T>
     }
     for (std::uint32_t i = 0; i < o.count; ++i) {
         const ObstacleObservation<T>& b = o.obstacles[i];
-        if (!(isfinite(b.position[0]) && isfinite(b.position[1]) && isfinite(b.position[2]) && b.radius > T(0) &&
-              b.height > T(0))) {
+        if (!(isfinite(b.position[0]) && isfinite(b.position[1]) && isfinite(b.position[2]) && isfinite(b.radius) &&
+              isfinite(b.height) && b.radius > T(0) && b.height > T(0))) {
             return false;  // I2
         }
     }

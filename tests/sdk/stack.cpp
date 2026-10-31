@@ -157,6 +157,15 @@ TEST_CASE("stack: the obstacles seen reach a stack in float, cast", "[stack]") {
     const auto seen = seen_at(1'000'000);
     REQUIRE(runner.feed(an::log::LogRecord{scout::log::oracle_obstacles, seen.t, scout::codec::encode(seen)}));
     CHECK(s->seen() == scout::cast<float>(seen));
+
+    // Finite in double, infinite in float: refused in the stack's type, not handed on.
+    auto wide = seen_at(2'000'000);
+    wide.obstacles[0].radius = 1e39;
+    const auto refused =
+        runner.feed(an::log::LogRecord{scout::log::oracle_obstacles, wide.t, scout::codec::encode(wide)});
+    REQUIRE_FALSE(refused);
+    CHECK(refused.error() == "oracle_obstacles record at t=2000000 is not valid in the stack's scalar type");
+    CHECK(s->seen() == scout::cast<float>(seen));  // unchanged
 }
 
 TEST_CASE("stack: create builds context slots and reports their errors", "[stack]") {
