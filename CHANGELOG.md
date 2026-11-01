@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.3](https://github.com/branes-ai/scout-drone/compare/v0.3.2...v0.3.3) (2026-11-01)
+
+
+### Build System
+
+* anatomy v0.6.1, whose loops take scout's stack ([#17](https://github.com/branes-ai/scout-drone/issues/17)) ([f42bdec](https://github.com/branes-ai/scout-drone/commit/f42bdecc876cc8671ac299628379c6bcfa445d78))
+
 ## [0.3.2](https://github.com/branes-ai/scout-drone/compare/v0.3.1...v0.3.2) (2026-11-01)
 
 
