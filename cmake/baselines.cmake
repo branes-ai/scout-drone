@@ -17,8 +17,10 @@
 #   4. generates <build>/generated/<name>/scout_baseline.hpp, which defines
 #      branes::scout::baseline::{name, composition_hash, Composition<T>},
 #   5. adds the interface target scout_baseline_<name>: the generated header's
-#      directory, and the libraries its slots need. The harnesses that run a
-#      baseline link it (S0d, docs/plan/bring-up/).
+#      directory, and the libraries its slots need;
+#   6. adds the baseline's harnesses, sitl_<name>, replay_<name> and
+#      sitl_batch_<name>, from the sources in apps/<harness>/ against that
+#      header (docs/plan/bring-up/, S0d-2).
 #
 #   scout_add_baseline(<name>)
 include_guard(GLOBAL)
@@ -47,4 +49,16 @@ function(scout_add_baseline name)
     target_include_directories(${target} INTERFACE ${gen_dir})
     target_link_libraries(${target} INTERFACE branes::scout branes::anatomy_glue)
     target_compile_definitions(${target} INTERFACE SCOUT_BASELINES_DIR="${PROJECT_SOURCE_DIR}/baselines")
+
+    # ── 6. the harnesses ────────────────────────────────────────────────
+    foreach(harness sitl replay sitl_batch)
+        set(app ${harness}_${name})
+        add_executable(${app} ${PROJECT_SOURCE_DIR}/apps/${harness}/main.cpp)
+        target_link_libraries(${app} PRIVATE ${target} branes::scout_sim)
+        scout_set_warnings(${app})
+        set_target_properties(${app} PROPERTIES
+            FOLDER "Baselines/${name}"
+            VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
+    endforeach()
+    target_link_libraries(sitl_batch_${name} PRIVATE Threads::Threads)
 endfunction()

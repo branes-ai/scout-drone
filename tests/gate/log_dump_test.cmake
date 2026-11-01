@@ -1,0 +1,63 @@
+# log_dump writes every record of a SITL log as CSV (apps/log_dump/main.cpp),
+# scout's oracle_obstacles channel among them: one record per camera frame,
+# and one row per obstacle seen.
+#
+# Inputs: SITL, DUMP (executables), SCENARIO, WORK_DIR.
+
+file(REMOVE_RECURSE ${WORK_DIR})
+file(MAKE_DIRECTORY ${WORK_DIR})
+
+function(run out_var)
+    execute_process(COMMAND ${ARGN} RESULT_VARIABLE rc OUTPUT_VARIABLE out ERROR_VARIABLE err)
+    message(STATUS "${out}${err}")
+    if(NOT rc EQUAL 0)
+        message(FATAL_ERROR "command failed (${rc}): ${ARGN}")
+    endif()
+    set(${out_var} "${out}" PARENT_SCOPE)
+endfunction()
+
+run(sitl_out ${SITL} --scenario ${SCENARIO} --out ${WORK_DIR}/run.brlog)
+if(NOT sitl_out MATCHES ", ([0-9]+) ticks, ([0-9]+) records ->")
+    message(FATAL_ERROR "cannot read the tick and record counts from: ${sitl_out}")
+endif()
+set(ticks ${CMAKE_MATCH_1})
+set(records ${CMAKE_MATCH_2})
+
+run(dump_out ${DUMP} --log ${WORK_DIR}/run.brlog --out-dir ${WORK_DIR}/dump)
+if(NOT dump_out MATCHES "log_dump: ([0-9]+) records ->")
+    message(FATAL_ERROR "cannot read the record count from: ${dump_out}")
+endif()
+if(NOT CMAKE_MATCH_1 EQUAL records)
+    message(FATAL_ERROR "log_dump read ${CMAKE_MATCH_1} records, SITL wrote ${records}")
+endif()
+
+foreach(name camera oracle_obstacles)
+    if(NOT dump_out MATCHES "${name}\\.csv +([0-9]+) records, ([0-9]+) rows")
+        message(FATAL_ERROR "no ${name} channel in: ${dump_out}")
+    endif()
+    set(${name}_records ${CMAKE_MATCH_1})
+    set(${name}_rows ${CMAKE_MATCH_2})
+endforeach()
+if(NOT oracle_obstacles_records EQUAL camera_records)
+    message(FATAL_ERROR "${oracle_obstacles_records} oracle_obstacles records, expected one per frame (${camera_records})")
+endif()
+if(NOT oracle_obstacles_rows GREATER 0)
+    message(FATAL_ERROR "no obstacle seen in a run through the forest")
+endif()
+file(STRINGS ${WORK_DIR}/dump/oracle_obstacles.csv lines)
+list(LENGTH lines n)
+math(EXPR rows "${n} - 1")
+if(NOT rows EQUAL oracle_obstacles_rows)
+    message(FATAL_ERROR "oracle_obstacles.csv has ${rows} rows, log_dump reported ${oracle_obstacles_rows}")
+endif()
+list(GET lines 0 columns)
+if(NOT columns STREQUAL "t_ns,t_s,count,index,id,position_x,position_y,position_z,radius,height")
+    message(FATAL_ERROR "oracle_obstacles.csv columns: ${columns}")
+endif()
+foreach(name header field vehicle sim_config)
+    if(NOT EXISTS ${WORK_DIR}/dump/${name}.yaml)
+        message(FATAL_ERROR "no ${name}.yaml")
+    endif()
+endforeach()
+
+message(STATUS "log_dump: passed")

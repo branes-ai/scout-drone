@@ -1,0 +1,21 @@
+# S0 on the obstacle field (docs/plan/bring-up/, acceptance 5): forest-60,
+# grown afresh from each seed, with the nominal randomization and the oracle's
+# noise. The batch reports the success rate and each outcome's count; there's
+# no threshold, since s0-gt-pid avoids nothing. Run at several cruise speeds
+# with sitl_batch_s0-gt-pid --set cruise_speed_m_s=<v>.
+name: s0-forest
+field: ../fields/forest-60.yaml
+vehicle: ../vehicles/rp1.yaml
+duration_s: 60
+seed: 1700
+randomization:
+  mass: 0.05
+  inertia: 0.1
+  drag: 0.1
+  motor_time_constant: 0.1
+  start_xy_m: 0.2
+  start_yaw_rad: 0.05
+sim:
+  oracle_range_m: 10.0
+  oracle_sigma_m: 0.05
+  collision_radius_m: 0.25
