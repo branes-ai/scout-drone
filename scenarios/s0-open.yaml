@@ -1,0 +1,15 @@
+# S0 on the open field (docs/plan/bring-up/, acceptance 5): no obstacles, the
+# nominal randomization (racing-drone's B0 nominal group). Each run of a batch
+# uses seed + i. s0-gt-pid must reach the goal in at least 99 of 100 seeds.
+name: s0-open
+field: ../fields/open-60.yaml
+vehicle: ../vehicles/rp1.yaml
+duration_s: 40
+seed: 1700
+randomization:
+  mass: 0.05
+  inertia: 0.1
+  drag: 0.1
+  motor_time_constant: 0.1
+  start_xy_m: 0.2
+  start_yaw_rad: 0.05

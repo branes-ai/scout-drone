@@ -33,6 +33,9 @@ endif()
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/deps.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/warnings.cmake)
 
+# sitl_batch_<baseline> runs its seeds on a thread pool.
+find_package(Threads REQUIRED)
+
 # Scout's part of the mission: its world, its slots and stack, its configs and
 # channels (docs/plan/bring-up/). The mission-neutral framework is anatomy.
 add_subdirectory(sdk)
@@ -46,6 +49,9 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/slot_registry.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/baselines.cmake)
 scout_add_baseline(null)
 scout_add_baseline(s0-gt-pid)
+
+# The tools that read any baseline's log: score_log and log_dump.
+add_subdirectory(apps)
 
 if(SCOUT_BUILD_TESTS AND BUILD_TESTING)
     add_subdirectory(tests)

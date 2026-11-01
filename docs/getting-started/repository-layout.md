@@ -2,11 +2,13 @@
 
 ```text
 scout-drone/
+├── apps/         # the harnesses: sitl, replay and sitl_batch per baseline, and score_log and log_dump
 ├── baselines/    # one file per baseline: its slot composition and its parameters
 ├── cmake/        # deps (anatomy), warnings, test registration, the slot registry and the baseline generator
 ├── docs/         # the documents: the source of this site
 ├── docs-site/    # the Starlight site generated from docs/, published to GitHub Pages
 ├── fields/       # the worlds: a start, a goal, a geofence, and obstacles listed or generated
+├── scenarios/    # the runs: a field, a vehicle, a duration, a seed, the randomization and the oracle
 ├── sdk/          # branes::scout: the mission's world, the obstacles seen, slots, stack, configs and channels
 ├── sim/          # branes::scout_sim: the simulator (the obstacle oracle), the scorer, and the scored run
 ├── tests/        # Catch2 tests, one executable per tests/<layer>/<name>.cpp; fixtures/ holds their data
@@ -21,6 +23,6 @@ A baseline file (`baselines/<name>.yaml`) names one implementation for each of s
 
 `sim/` runs a baseline in anatomy's closed loop. Its oracle reports the obstacles within range of the true position at each camera frame, and its scorer judges a run: reached the goal, collided, left the geofence, over the speed limit, or timed out.
 
-The [bring-up plan](../plan/bring-up/README.md) adds the rest as S0 lands: the apps and the scenarios.
+`apps/` flies a baseline over a scenario (`scenarios/<name>.yaml`) and writes the log, replays it, scores it, dumps it as CSV, or runs a batch of seeds ([build and test](build-and-test.md)).
 
 The [documentation map](../README.md) lists every document.
