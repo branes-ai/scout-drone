@@ -10,5 +10,5 @@ Decisions about scout-drone itself are recorded here.
 
 | ADR | Decision | Status |
 |---|---|---|
-| [0001](0001-third-party-license-compatibility.md) | Third-party license compatibility (MIT; permissive dependencies only) | Accepted |
+| [0001](0001-third-party-license-compatibility.md) | Third-party license compatibility (MIT; permissive dependencies only) | Accepted (amended) |
 | [0002](0002-no-gpl-clean-room-policy.md) | No GPL code for any purpose; clean-room from papers | Accepted |
