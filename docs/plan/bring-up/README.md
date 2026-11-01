@@ -138,7 +138,7 @@ Run with `s0-gt-pid` and the scenarios in `scenarios/`, at the anatomy pin of th
   | 3 m/s | 32 | 68 | 0 | 14.3 s | 3.76 m/s |
   | 4 m/s | 32 | 68 | 0 | 12.3 s | 4.45 m/s |
 
-  The same 32 seeds reach the goal at every speed: a straight line to the goal clears the forest or it doesn't, whatever the speed. That's the lower bound, flat in speed, which an avoiding baseline must beat. The peak speed runs about 0.8 m/s over the cruise speed, as the controller chases the planner's carrot.
+  The same 32 seeds reach the goal at every speed: a straight line to the goal clears the forest or it doesn't, whatever the speed. That's the lower bound, flat in speed, which an avoiding baseline must beat. The peak speed runs over the cruise speed as the controller chases the planner's carrot: by about 0.8 m/s at 2 and 3 m/s, and by 0.45 m/s at 4 m/s, where the controller's speed cap (`max_speed_m_s`, 4.5 m/s) limits it.
 
 ## Risks
 

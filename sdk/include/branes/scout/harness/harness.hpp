@@ -28,6 +28,7 @@
 #include <branes/scout/slots/context.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <filesystem>
 #include <optional>
@@ -93,8 +94,9 @@ template <class StackT>
 // ── parameter overrides ─────────────────────────────────────────────
 
 /// `b` with the parameters `spec` sets: "key=value[,key=value…]", each key a
-/// parameter `b` already has, each value a number. A key that `b` lacks is an
-/// error, so a misspelt key can't be silently ignored.
+/// parameter `b` already has, each value a finite number. A key that `b` lacks
+/// is an error, so a misspelt key can't be silently ignored, and so is nan or
+/// inf, which numeric_parameter() would drop in favour of a default.
 [[nodiscard]] inline anatomy::result<config::BaselineConfig, std::string> override_parameters(config::BaselineConfig b,
                                                                                               std::string_view spec) {
     std::size_t at = 0;
@@ -110,8 +112,9 @@ template <class StackT>
         if (b.parameters.count(key) == 0) {
             return std::string("--set " + key + ": the baseline has no parameter " + key);
         }
-        if (!anatomy::harness::parse_number<double>(value)) {
-            return std::string("--set " + key + ": '" + value + "' is not a number");
+        const auto number = anatomy::harness::parse_number<double>(value);
+        if (!number || !std::isfinite(*number)) {
+            return std::string("--set " + key + ": '" + value + "' is not a finite number");
         }
         b.parameters[key] = value;
         at = end + 1;

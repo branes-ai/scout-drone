@@ -99,4 +99,4 @@ add_test(NAME tools.batch_set.not_a_number
     COMMAND sitl_batch_s0-gt-pid
         --scenario ${PROJECT_SOURCE_DIR}/scenarios/s0-open.yaml --seeds 1 --set cruise_speed_m_s=fast)
 set_tests_properties(tools.batch_set.not_a_number PROPERTIES
-    PASS_REGULAR_EXPRESSION "'fast' is not a number")
+    PASS_REGULAR_EXPRESSION "'fast' is not a finite number")

@@ -6,6 +6,7 @@
 #  2. Two replays each verify the recorded outputs, and are byte-identical to
 #     each other and to the SITL log.
 #  3. score_log reads the log.
+#  4. A replay refuses an --out that is its input under another name.
 #
 # Inputs: SITL, REPLAY, SCORE (executables), SCENARIO, WORK_DIR.
 
@@ -37,5 +38,14 @@ same(${WORK_DIR}/replay1.brlog ${WORK_DIR}/replay2.brlog "replay is not determin
 same(${WORK_DIR}/sitl1.brlog ${WORK_DIR}/replay1.brlog "replay of the SITL log differs from the SITL log")
 
 run(${SCORE} --log ${WORK_DIR}/sitl1.brlog)
+
+# A replay refuses to write over its own input, even named another way.
+file(COPY_FILE ${WORK_DIR}/sitl1.brlog ${WORK_DIR}/keep.brlog)
+execute_process(COMMAND ${REPLAY} --log ${WORK_DIR}/sitl1.brlog --out ${WORK_DIR}/./sitl1.brlog
+    RESULT_VARIABLE rc ERROR_VARIABLE err OUTPUT_QUIET)
+if(rc EQUAL 0 OR NOT err MATCHES "--out is the input log")
+    message(FATAL_ERROR "replay onto its own input was not refused (${rc}): ${err}")
+endif()
+same(${WORK_DIR}/sitl1.brlog ${WORK_DIR}/keep.brlog "the refused replay changed its input")
 
 message(STATUS "gate sitl: passed")

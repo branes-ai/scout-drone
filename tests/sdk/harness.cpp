@@ -1,7 +1,7 @@
 // Scout's harness helpers (harness/harness.hpp): the field a log records is
 // the field flown, its obstacles listed, and reads back equal; a field that
 // generates its obstacles is refused there; and --set overrides numeric
-// parameters the baseline has, refusing any other.
+// parameters the baseline has with finite numbers, refusing anything else.
 
 #include <branes/scout/config/config.hpp>
 #include <branes/scout/harness/harness.hpp>
@@ -70,7 +70,13 @@ TEST_CASE("harness: --set refuses an unknown key, a value that isn't a number, a
     CHECK(unknown.error() == "--set cruise_sped_m_s: the baseline has no parameter cruise_sped_m_s");
     const auto word = harness::override_parameters(b, "cruise_speed_m_s=fast");
     REQUIRE_FALSE(word);
-    CHECK(word.error() == "--set cruise_speed_m_s: 'fast' is not a number");
+    CHECK(word.error() == "--set cruise_speed_m_s: 'fast' is not a finite number");
+    for (const char* odd : {"control_rate_hz=nan", "control_rate_hz=inf", "control_rate_hz=-inf"}) {
+        INFO(odd);
+        const auto r = harness::override_parameters(b, odd);
+        REQUIRE_FALSE(r);
+        CHECK(r.error().find("is not a finite number") != std::string::npos);
+    }
     for (const char* bad : {"", "cruise_speed_m_s", "=4", "cruise_speed_m_s=", "cruise_speed_m_s=4,"}) {
         INFO(bad);
         CHECK_FALSE(harness::override_parameters(b, bad));

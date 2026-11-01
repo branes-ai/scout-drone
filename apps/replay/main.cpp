@@ -24,8 +24,10 @@
 #include "scout_baseline.hpp"
 
 #include <cstdio>
+#include <filesystem>
 #include <span>
 #include <string>
+#include <system_error>
 
 namespace scout = branes::scout;
 namespace an = branes::anatomy;
@@ -109,6 +111,11 @@ int main(int argc, char** argv) {
     }
     auto& stack = *built;
 
+    // Opening the writer truncates --out, so it must not be the input log under another name.
+    std::error_code same_ec;
+    if (std::filesystem::equivalent(*in_path, *out_path, same_ec)) {
+        return fail("--out is the input log (" + *in_path + "): replaying would overwrite it");
+    }
     auto writer = an::log::LogWriter::open(*out_path, header);
     if (!writer) {
         return fail(writer.error().path + ": " + writer.error().message);
