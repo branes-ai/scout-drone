@@ -56,6 +56,12 @@ There's no gate detector. The oracle stands in for perception until cortex's dep
 
 **The apps,** as racing-drone's: `sitl_<baseline>`, `replay_<baseline>`, `sitl_batch_<baseline>`, `score` and `log_dump`. No `flight_stack` and no precision sweep yet.
 
+**The replay** (S0e, added after S0d): a SITL run plays in the docs site, in the trace player reflex publishes (`@branes-ai/trace-player`, reflex's animation standard), with the field drawn. The player drew only the vehicle, so reflex comes first:
+- **`reflex-trace/1` gets a scene** (optional, so the format stays `/1`): entities, each with a role, a collision shape (box, cylinder or sphere), an optional visual drawn in its place (a procedural tree or gate sized from the shape, or a glTF model reference for later), and a pose that is fixed or read from trace channels, for moving entities. The collision shape is always there, because it is what the simulator and the scorer test, and the player can show it over a visual.
+- **scout's `trace_export`** writes a log as a trace: the vehicle's channels as racing's does, the field as the scene (each obstacle a cylinder drawn as a tree, the goal, the geofence), and takeoff, the goal and a collision, with its obstacle, as events. The docs site plays a forest run that collides and one that gets through.
+
+glTF models wait for a need, a CC0 source and a size budget: a model that looks wider than the trunk the scorer tests would mislead.
+
 ## What S0 may expose in anatomy
 
 These are the assumptions to check, from reading anatomy. S0 confirms or rules out each one. A confirmed one gets an anatomy PR, released, and scout-drone moves its pin.
@@ -90,6 +96,8 @@ Each change to anatomy must keep racing-drone's outputs byte-identical (its `too
 | **S0c** | scout-drone | The contracts and slots: `ObstacleObservations` and its codec, the `oracle_obstacles` channel and `ScoutProfile`, the `Estimator` and `Planner` concepts, their nulls, `GroundTruthEstimator` and `GoalPlanner`, the `Stack`, the slot registry and the baseline generator, and the `null` and `s0-gt-pid` baselines |
 | **S0d-1** | scout-drone | The simulator and the scorer: `ObstacleOracle`, `Simulator`, `Scorer`, and the scored run the batch shares (`run_one`), with their tests |
 | **S0d-2** | scout-drone | The apps and the scenarios: `sitl`, `replay`, `sitl_batch` (with `--set`), `score`, `log_dump`, and the acceptance runs |
+| **V1** | reflex | The scene in `reflex-trace/1`: its schema and validator, the player drawing collision shapes, procedural trees and gates, and moving entities, the standard, and a release |
+| **S0e** | scout-drone | The replay: `trace_export`, its test, and a docs page that plays a forest run, on the released trace player |
 | **An** | anatomy | One PR per assumption confirmed, each released; racing-drone stays byte-identical, and scout-drone bumps its pin |
 | **R** | racing-drone | ADR 0008's current state: step 5.3 done, with links to this plan |
 
@@ -122,6 +130,7 @@ S0b–S0d-2 may each wait on an anatomy PR. Where anatomy's change is needed fir
 6. **Each anatomy assumption** in the list above is recorded in this plan as confirmed (with the anatomy PR that fixes it) or ruled out (with why). Each anatomy PR keeps racing-drone's outputs byte-identical, checked with its `compare_outputs.sh`.
 7. **The docs:** the docs site is published, and this plan is on the architecture site.
 8. **ADR 0008's current state** says step 5.3 is done and links here.
+9. **The replay:** a forest run that collides and one that reaches the goal play in the docs site, the trees and the goal drawn, and the collision shapes shown on demand. The trace validates against the released schema.
 
 ## Results (S0d-2)
 
