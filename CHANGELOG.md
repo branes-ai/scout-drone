@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.2](https://github.com/branes-ai/scout-drone/compare/v0.3.1...v0.3.2) (2026-11-01)
+
+
+### Build System
+
+* docs-kit v0.6.0 for the docs site ([#14](https://github.com/branes-ai/scout-drone/issues/14)) ([5ad1e00](https://github.com/branes-ai/scout-drone/commit/5ad1e00c282a28f5f5c0a3069423eb7377bfc037))
+
+
+### Documentation
+
+* **adr:** allow published facts under the data rule ([#15](https://github.com/branes-ai/scout-drone/issues/15)) ([0f7b7ea](https://github.com/branes-ai/scout-drone/commit/0f7b7eab5504ac47dcd1a8126e0914aa069aef01))
+
 ## [0.3.1](https://github.com/branes-ai/scout-drone/compare/v0.3.0...v0.3.1) (2026-11-01)
 
 
