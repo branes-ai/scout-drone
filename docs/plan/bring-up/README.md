@@ -50,9 +50,9 @@ There's no gate detector. The oracle stands in for perception until cortex's dep
 - `s0-gt-pid`: the true state (`GroundTruthEstimator`), a `GoalPlanner` that flies a straight line to the goal at a cruise speed and holds there, and `CascadedPid`. The planner climbs from the pad to the goal's height first, as racing's waypoint planner climbs to its first gate. It doesn't avoid obstacles. It's the lower bound every avoiding baseline must beat, as B0 is racing's upper bound.
 
 **The scorer:**
-- **The outcome:** reached (within the goal radius), collided (the vehicle's radius touches an obstacle or the ground away from the pad), left the geofence, over the speed limit, or timed out.
+- **The outcome:** reached (within the goal radius), collided (the vehicle's radius touches an obstacle or the ground away from the pad), left the geofence, over the speed limit, or timed out. The vehicle's radius is the scenario's `sim.collision_radius_m`, 0.25 m by default: the vehicle file has the arm length but no propeller size.
 - **The measures:** the time to the goal, the minimum clearance to any obstacle, the path length, and the peak speed.
-- **`sitl_batch`:** the success rate over N seeds, with each outcome's count. The success rate against speed (ADR 0007) comes from running the batch at several cruise speeds.
+- **`sitl_batch`:** the success rate over N seeds, with each outcome's count. The success rate against speed (ADR 0007) comes from running the batch at several cruise speeds: `--set cruise_speed_m_s=<v>` overrides a numeric baseline parameter for one batch. `sitl` and `replay` don't take it, so a reference log always has the baseline file's parameters.
 
 **The apps,** as racing-drone's: `sitl_<baseline>`, `replay_<baseline>`, `sitl_batch_<baseline>`, `score` and `log_dump`. No `flight_stack` and no precision sweep yet.
 
@@ -65,9 +65,11 @@ These are the assumptions to check, from reading anatomy. S0 confirms or rules o
 2. **The geofence comes from the world.** Racing's `Stack` passes `map_.geofence` to the safety filter. A field must carry one too, or the safety filter's contract must take it from somewhere else.
    - **S0c: ruled out.** The field carries its geofence (`Field::geofence`, from S0b), and scout's `Stack` passes it to the safety filter as racing's passes the course's. The contract needs no change.
 3. **The oracle sees only the truth.** `OracleSensor::observe(truth, t)` takes no random stream. Noisy obstacle observations need one that is deterministic in the seed, as racing's corner noise is.
+   - **S0d-1: ruled out.** The oracle owns its stream. `ObstacleOracle` is built with the scenario's seed and draws its noise from a stream of its own (`kOracleStream`, through `anatomy::stream_seed`), so `observe` needs none passed in, and the simulator's streams don't shift. The noise is uniform with the scenario's σ, as the simulated IMU's is, so a seed draws the same noise on every platform. Racing's corner noise turned out not to be drawn at all: its σ only sets the observation's covariance.
 4. **Mission channel ids.** Racing's `oracle_gates` is id 5. A second mission may pick the same id for a different channel. The registry rule (ADR 0001, amendment 5) leaves a mission's ids to the mission, and `log_dump` must name them.
-   - **S0c: no clash.** `oracle_obstacles` is id 7, apart from racing's 5, so a racing log fails to open with scout's channels instead of being read as scout's. Naming them in `log_dump` is S0d's to check.
+   - **S0c: no clash.** `oracle_obstacles` is id 7, apart from racing's 5, so a racing log fails to open with scout's channels instead of being read as scout's. Naming them in `log_dump` is S0d-2's to check.
 5. **The run ends at the duration, or when the scorer stops it.** A run that reaches the goal must stop cleanly, and a vehicle that hovers at the goal must not count as a failure.
+   - **S0d-1: ruled out.** The scorer marks the run complete when the vehicle comes within the goal radius, and scores nothing after that, so a vehicle holding at the goal can't fail. The closed loop (`run_closed_loop`) stops at completion. A SITL run logs to its duration, and scoring its log stops at the goal the same way.
 6. **Names.** racing-drone reaches anatomy through bridge headers. scout-drone uses anatomy's names directly, in `branes::scout`. If something is reachable only through a bridge, that's an anatomy gap.
    - **S0c: none so far.** The slots, the stack, the slot registry and the baseline generator use anatomy's names directly. The registry names anatomy's neutral nulls and `CascadedPid` by their own types.
 7. **The YAML helpers are private.** Not in this list as first written; found in S0b. A mission's world file is loaded with the helpers anatomy's own loaders use, but they were private to anatomy's `sdk/src/config/`, and racing-drone keeps a copy. **Confirmed:** they become a public library, `branes::anatomy_yaml` ([anatomy#23](https://github.com/branes-ai/anatomy/pull/23)).
@@ -83,11 +85,12 @@ Each change to anatomy must keep racing-drone's outputs byte-identical (its `too
 | **S0a** | scout-drone | The repo: CMake ≥ 4.0 with the shared presets, deps (anatomy v0.4.0, with the reflex pin anatomy uses), warnings and format, CI (GCC and Clang, debug and release, and MSVC), commitlint, release-please, `docs/` with its map and getting-started pages, the docs site with docs-kit v0.2.1, and this plan. A smoke test links anatomy |
 | **S0b** | scout-drone | The world: `Field`, its loader and emitter (round trip), the generated obstacles, the scenario schema, and their tests |
 | **S0c** | scout-drone | The contracts and slots: `ObstacleObservations` and its codec, the `oracle_obstacles` channel and `ScoutProfile`, the `Estimator` and `Planner` concepts, their nulls, `GroundTruthEstimator` and `GoalPlanner`, the `Stack`, the slot registry and the baseline generator, and the `null` and `s0-gt-pid` baselines |
-| **S0d** | scout-drone | The simulator, the scorer and the apps: `ObstacleOracle`, `Simulator`, `Scorer`, `sitl`, `replay`, `sitl_batch`, `score`, `log_dump`, and the scenarios |
+| **S0d-1** | scout-drone | The simulator and the scorer: `ObstacleOracle`, `Simulator`, `Scorer`, and the scored run the batch shares (`run_one`), with their tests |
+| **S0d-2** | scout-drone | The apps and the scenarios: `sitl`, `replay`, `sitl_batch` (with `--set`), `score`, `log_dump`, and the acceptance runs |
 | **An** | anatomy | One PR per assumption confirmed, each released; racing-drone stays byte-identical, and scout-drone bumps its pin |
 | **R** | racing-drone | ADR 0008's current state: step 5.3 done, with links to this plan |
 
-S0b–S0d may each wait on an anatomy PR. Where anatomy's change is needed first, it lands and is released before the scout-drone PR that needs it.
+S0b–S0d-2 may each wait on an anatomy PR. Where anatomy's change is needed first, it lands and is released before the scout-drone PR that needs it.
 
 ## Progress
 
@@ -99,6 +102,7 @@ S0b–S0d may each wait on an anatomy PR. Where anatomy's change is needed first
 | S0b | scout-drone | Merged as [#7](https://github.com/branes-ai/scout-drone/pull/7): the field, its file, the generated obstacles and the scenario schema, on anatomy v0.5.0. Released in v0.2.0 |
 | S0c | scout-drone | Merged as [#9](https://github.com/branes-ai/scout-drone/pull/9): the obstacles seen and their channel, `ScoutProfile`, the slots and the `Stack`, the slot registry and the baseline generator, and the `null` and `s0-gt-pid` baselines. Assumption 2 ruled out; 8 confirmed, for A3. Released in v0.3.0 |
 | A3 | anatomy | Merged as [#26](https://github.com/branes-ai/anatomy/pull/26): the mobile loops take a stack whose profile adds inputs (assumption 8). racing-drone byte-identical. Released in v0.6.0; scout-drone moves to v0.6.1, and its stack is a `MobileStack` |
+| S0d-1 | scout-drone | The obstacle oracle, the simulator, the scorer (with `sim.collision_radius_m`) and the scored run. Assumptions 3 and 5 ruled out |
 
 ## Acceptance (stated before any test is run)
 

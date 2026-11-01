@@ -31,6 +31,7 @@
 #include <branes/anatomy/msg/geometry.hpp>
 
 #include <array>
+#include <cmath>
 #include <cstdint>
 
 namespace branes::scout {
@@ -66,6 +67,21 @@ struct Field {
 
     friend constexpr bool operator==(const Field&, const Field&) = default;
 };
+
+/// The distance from `p` to obstacle `o` taken as a solid: 0 inside it, else
+/// the distance to its nearest point (its side, its top or its foot). The
+/// obstacle oracle's range and the scorer's clearance are measured with it.
+template <typename T>
+[[nodiscard]] T distance(const Obstacle<T>& o, const anatomy::Vec3<T>& p) noexcept {
+    using std::sqrt;
+    const T dx = p[0] - o.base[0];
+    const T dy = p[1] - o.base[1];
+    const T r = sqrt(dx * dx + dy * dy);
+    const T side = r > o.radius ? r - o.radius : T(0);
+    const T top = o.base[2] + o.height;
+    const T up = p[2] < o.base[2] ? o.base[2] - p[2] : (p[2] > top ? p[2] - top : T(0));
+    return sqrt(side * side + up * up);
+}
 
 /// True if `p` is inside obstacle `o`: within its radius horizontally, and
 /// between its foot and its top.

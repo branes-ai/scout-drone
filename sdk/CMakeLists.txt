@@ -6,7 +6,7 @@
 # their channel (msg/obstacles.hpp, log/channels.hpp), its slots
 # (slots/), and its stack and profile (compose/). It compiles the field
 # loader, with anatomy's YAML helpers (branes::anatomy_yaml). Its simulator and
-# scorer follow in S0d (docs/plan/bring-up/).
+# scorer are branes::scout_sim (sim/).
 
 add_library(branes_scout STATIC
     src/config/field.cpp
