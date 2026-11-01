@@ -87,7 +87,7 @@ $b/apps/trace_export --log run.brlog --scenario scenarios/s0-forest.yaml --out r
 `--scenario` must be the file the log was recorded from: `trace_export`
 checks its hash against the log's, and takes the trace's seed and physics
 step and the scorer's collision radius and speed limit from it. `--rate`
-sets the sample rate (20 Hz by default). `tools/gen_replay.sh` records this
+sets the sample rate (20 Hz by default); it must divide the physics rate. `tools/gen_replay.sh` records this
 page's two replays.
 
 To play a replay on a page, import the player and the trace in an `.mdx`

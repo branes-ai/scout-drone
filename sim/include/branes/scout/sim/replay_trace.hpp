@@ -20,7 +20,8 @@
 ///    the scorer tests, so the player's collision shapes are the scorer's.
 ///  - **Events**: takeoff, and the run's outcome as the Scorer judges it
 ///    (sim/score.hpp), fed every truth sample: the goal reached, or the first
-///    failure, with the obstacle hit.
+///    failure, with the obstacle hit, or, for a run that ends unsettled, the
+///    timeout at the last sample.
 ///  - **Span**: from the first truth sample to the end of the log, or, once
 ///    the outcome is settled, to `tail_s` after it.
 ///
@@ -76,9 +77,10 @@ struct ReplayOptions {
     return s;
 }
 
-/// Reads every record of `reader` and writes it as a replay. Fails on a log
-/// with no truth, with truth samples off the sample grid, with an
-/// undecodable record, or whose header doesn't record a field and a vehicle.
+/// Reads every record of `reader` and writes it as a replay. Fails on a
+/// sample period that isn't a whole number of physics steps, on a log with
+/// no truth, with truth samples off the sample grid, with an undecodable
+/// record, or whose header doesn't record a field and a vehicle.
 /// Pre: options.rate_hz > 0; options.tail_s ≥ 0; collision_radius_m ≥ 0;
 /// prov.dt_sim > 0.
 [[nodiscard]] inline anatomy::result<reflex::trace::Trace, std::string>
@@ -97,6 +99,14 @@ replay_trace(anatomy::log::LogReader& reader, const ReplayProvenance& prov, cons
     const auto step_ns = static_cast<std::int64_t>(std::llround(1e9 / options.rate_hz));
     if (step_ns <= 0) {
         return std::string("the sample rate is too high");
+    }
+    // The samples fall on the truth stream's grid, so the period must be a
+    // whole number of physics steps; checked before reading, since another
+    // period would match the first truth sample only.
+    const auto physics_ns = static_cast<std::int64_t>(std::llround(prov.dt_sim * 1e9));
+    if (physics_ns <= 0 || step_ns % physics_ns != 0) {
+        return "the sample period, " + std::to_string(step_ns) + " ns, is not a whole number of physics steps (" +
+               std::to_string(physics_ns) + " ns): choose a rate that divides the physics rate";
     }
     const auto tail_ns = static_cast<std::int64_t>(std::llround(options.tail_s * 1e9));
 
@@ -241,9 +251,11 @@ replay_trace(anatomy::log::LogReader& reader, const ReplayProvenance& prov, cons
     if (takeoff && at(*takeoff) <= end_s) {
         tr.event(at(*takeoff), "takeoff");
     }
+    const Score s = scorer.score();
     if (settled && at(*settled) <= end_s) {
-        const Score s = scorer.score();
         tr.event(at(*settled), s.success ? "reached the goal" : without_time(s.failure));
+    } else if (!settled) {
+        tr.event(end_s, s.failure);  // timed out: at the last sample, with the distance from the goal
     }
     return tr;
 }

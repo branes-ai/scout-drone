@@ -106,6 +106,7 @@ set_tests_properties(tools.batch_set.not_a_number PROPERTIES
 add_test(NAME tools.trace_export
     COMMAND ${CMAKE_COMMAND}
         -DSITL=$<TARGET_FILE:sitl_s0-gt-pid>
+        -DNULL_SITL=$<TARGET_FILE:sitl_null>
         -DEXPORT=$<TARGET_FILE:trace_export>
         -DSOURCE_DIR=${PROJECT_SOURCE_DIR}
         -DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/tools_trace_export

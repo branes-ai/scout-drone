@@ -1,10 +1,11 @@
 # trace_export writes a SITL log as a reflex-trace/1 replay with the field as
 # its scene (apps/trace_export/main.cpp, sim/replay_trace.hpp): the vehicle's
 # channels, every obstacle as a cylinder drawn as a tree, the goal and the
-# geofence, and takeoff and the outcome as events; it refuses a log that
+# geofence, and takeoff and the outcome as events (the timeout of a run that
+# times out); it refuses a sample rate off the physics grid, and a log that
 # wasn't recorded from the scenario it is given.
 #
-# Inputs: SITL, EXPORT (executables), SOURCE_DIR, WORK_DIR.
+# Inputs: SITL, NULL_SITL, EXPORT (executables), SOURCE_DIR, WORK_DIR.
 
 file(REMOVE_RECURSE ${WORK_DIR})
 file(MAKE_DIRECTORY ${WORK_DIR})
@@ -64,6 +65,19 @@ string(REGEX MATCHALL "\"role\": \"obstacle\"" obstacles "${json}")
 list(LENGTH obstacles n)
 if(NOT n EQUAL 54)
     message(FATAL_ERROR "${n} obstacles in the scene, expected the forest's 54")
+endif()
+
+# A rate whose period isn't a whole number of physics steps (1 ms) is refused.
+refused("not a whole number of physics steps" ${EXPORT} --log ${WORK_DIR}/run.brlog
+    --scenario ${scenario} --out ${WORK_DIR}/c.json --rate 30)
+
+# A run that times out (the null baseline stays on the pad) ends with the timeout event.
+set(null_scenario ${SOURCE_DIR}/scenarios/null-smoke.yaml)
+run(null_out ${NULL_SITL} --scenario ${null_scenario} --out ${WORK_DIR}/null.brlog)
+run(out ${EXPORT} --log ${WORK_DIR}/null.brlog --scenario ${null_scenario} --out ${WORK_DIR}/null.json)
+file(READ ${WORK_DIR}/null.json null_json)
+if(NOT null_json MATCHES "\"label\": \"timed out: [0-9.]+ m from the goal\"")
+    message(FATAL_ERROR "the replay of a timed-out run lacks the timeout event")
 endif()
 
 # A log recorded from another scenario is refused.
