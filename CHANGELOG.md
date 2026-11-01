@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/branes-ai/scout-drone/compare/v0.4.0...v0.5.0) (2026-11-01)
+
+
+### Features
+
+* **apps:** sitl, replay, sitl_batch, score_log and log_dump (S0d-2) ([#21](https://github.com/branes-ai/scout-drone/issues/21)) ([e4626dc](https://github.com/branes-ai/scout-drone/commit/e4626dc4f7b7b9f2c58c41fdfa1dc6fadb8cfdf0))
+
 ## [0.4.0](https://github.com/branes-ai/scout-drone/compare/v0.3.3...v0.4.0) (2026-11-01)
 
 
