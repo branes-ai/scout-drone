@@ -29,10 +29,12 @@ using anatomy::config::ScenarioConfig;
 // ── Scenario ────────────────────────────────────────────────────────
 
 /// Scout's own `sim:` parameters, in the order they are stored and emitted.
-/// The obstacle oracle (docs/plan/bring-up/, S0d) reads them.
-inline constexpr std::array<anatomy::config::WorldSimParam, 2> kScoutWorldSim = {
+/// The obstacle oracle and the scorer (sim/) read them.
+inline constexpr std::array<anatomy::config::WorldSimParam, 3> kScoutWorldSim = {
     anatomy::config::WorldSimParam{"oracle_range_m", 10.0, 0.0},  ///< obstacles seen within this range [m]
     anatomy::config::WorldSimParam{"oracle_sigma_m", 0.0, 0.0},   ///< noise on each seen obstacle's position, 1σ [m]
+    anatomy::config::WorldSimParam{
+        "collision_radius_m", 0.25, 0.0},  ///< the vehicle's radius for collisions (sim/score.hpp) [m]
 };
 
 /// Scout's scenario schema: the world file is the field (`field:`).
@@ -71,6 +73,13 @@ parse_scenario(std::string_view yaml, std::string_view origin, const std::filesy
 [[nodiscard]] inline double oracle_sigma_m(const ScenarioConfig& s) noexcept {
     assert(follows_scout_schema(s));  // Pre
     return s.world_sim[1];
+}
+
+/// The vehicle's radius for collisions [m] (`sim.collision_radius_m`): RP-1's
+/// arm, a propeller and a margin by default. Pre: follows_scout_schema(s).
+[[nodiscard]] inline double collision_radius_m(const ScenarioConfig& s) noexcept {
+    assert(follows_scout_schema(s));  // Pre
+    return s.world_sim[2];
 }
 
 /// The field a scenario flies: its field file, with the scenario's seed.

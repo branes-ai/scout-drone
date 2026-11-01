@@ -37,6 +37,9 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/warnings.cmake)
 # channels (docs/plan/bring-up/). The mission-neutral framework is anatomy.
 add_subdirectory(sdk)
 
+# Scout's SITL harness: its simulator (the obstacle oracle) and its scorer.
+add_subdirectory(sim)
+
 # Baselines: one composition per baselines/<name>.yaml, over scout's slot
 # registry (racing-drone docs/adr/0001-baseline-composition-framework.md).
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/slot_registry.cmake)
