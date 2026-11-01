@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.1](https://github.com/branes-ai/scout-drone/compare/v0.3.0...v0.3.1) (2026-11-01)
+
+
+### Build System
+
+* docs-kit v0.4.1 for the docs site ([#11](https://github.com/branes-ai/scout-drone/issues/11)) ([493793a](https://github.com/branes-ai/scout-drone/commit/493793ab2e87af77ce748bc3110db0cc5971387e))
+
+
+### Documentation
+
+* record the license policy as ADRs 0001 and 0002 ([#13](https://github.com/branes-ai/scout-drone/issues/13)) ([4cdde96](https://github.com/branes-ai/scout-drone/commit/4cdde96d3d7eaee6c5397868f074c568aa9aa19e))
+
 ## [0.3.0](https://github.com/branes-ai/scout-drone/compare/v0.2.0...v0.3.0) (2026-10-31)
 
 
