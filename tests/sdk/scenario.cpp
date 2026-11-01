@@ -37,6 +37,8 @@ TEST_CASE("scenario: scout's sim parameters default to the schema's fallbacks", 
     const ScenarioConfig s = load("defaults.yaml");
     REQUIRE(oracle_range_m(s) == kScoutWorldSim[0].fallback);
     REQUIRE(oracle_sigma_m(s) == kScoutWorldSim[1].fallback);
+    REQUIRE(collision_radius_m(s) == kScoutWorldSim[2].fallback);
+    REQUIRE(collision_radius_m(s) == 0.25);
 }
 
 TEST_CASE("scenario: emitting and loading again gives the same scenario", "[scenario][config]") {
