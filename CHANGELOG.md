@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/branes-ai/scout-drone/compare/v0.3.3...v0.4.0) (2026-11-01)
+
+
+### Features
+
+* **sim:** the obstacle oracle, the simulator and the scorer (S0d-1) ([#19](https://github.com/branes-ai/scout-drone/issues/19)) ([09e12e0](https://github.com/branes-ai/scout-drone/commit/09e12e076ab86b42fa296c91089d8dae9e768459))
+
 ## [0.3.3](https://github.com/branes-ai/scout-drone/compare/v0.3.2...v0.3.3) (2026-11-01)
 
 
