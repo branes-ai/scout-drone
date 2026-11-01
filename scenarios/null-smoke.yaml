@@ -1,0 +1,8 @@
+# The null baseline's smoke run (docs/plan/bring-up/, acceptance 4): the null
+# slots command nothing, so the vehicle stays on the pad, and the run ends at
+# its duration, scored as timed out.
+name: null-smoke
+field: ../fields/open-60.yaml
+vehicle: ../vehicles/rp1.yaml
+duration_s: 5
+seed: 1

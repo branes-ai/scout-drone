@@ -56,6 +56,12 @@ There's no gate detector. The oracle stands in for perception until cortex's dep
 
 **The apps,** as racing-drone's: `sitl_<baseline>`, `replay_<baseline>`, `sitl_batch_<baseline>`, `score` and `log_dump`. No `flight_stack` and no precision sweep yet.
 
+**The replay** (S0e, added after S0d): a SITL run plays in the docs site, in the trace player reflex publishes (`@branes-ai/trace-player`, reflex's animation standard), with the field drawn. The player drew only the vehicle, so reflex comes first:
+- **`reflex-trace/1` gets a scene** (optional, so the format stays `/1`): entities, each with a role, a collision shape (box, cylinder or sphere), an optional visual drawn in its place (a procedural tree or gate sized from the shape, or a glTF model reference for later), and a pose that is fixed or read from trace channels, for moving entities. The collision shape is always there, because it is what the simulator and the scorer test, and the player can show it over a visual.
+- **scout's `trace_export`** writes a log as a trace: the vehicle's channels as racing's does, the field as the scene (each obstacle a cylinder drawn as a tree, the goal, the geofence), and takeoff, the goal and a collision, with its obstacle, as events. The docs site plays a forest run that collides and one that gets through.
+
+glTF models wait for a need, a CC0 source and a size budget: a model that looks wider than the trunk the scorer tests would mislead.
+
 ## What S0 may expose in anatomy
 
 These are the assumptions to check, from reading anatomy. S0 confirms or rules out each one. A confirmed one gets an anatomy PR, released, and scout-drone moves its pin.
@@ -68,6 +74,7 @@ These are the assumptions to check, from reading anatomy. S0 confirms or rules o
    - **S0d-1: ruled out.** The oracle owns its stream. `ObstacleOracle` is built with the scenario's seed and draws its noise from a stream of its own (`kOracleStream`, through `anatomy::stream_seed`), so `observe` needs none passed in, and the simulator's streams don't shift. The noise is uniform with the scenario's σ, as the simulated IMU's is, so a seed draws the same noise on every platform. Racing's corner noise turned out not to be drawn at all: its σ only sets the observation's covariance.
 4. **Mission channel ids.** Racing's `oracle_gates` is id 5. A second mission may pick the same id for a different channel. The registry rule (ADR 0001, amendment 5) leaves a mission's ids to the mission, and `log_dump` must name them.
    - **S0c: no clash.** `oracle_obstacles` is id 7, apart from racing's 5, so a racing log fails to open with scout's channels instead of being read as scout's. Naming them in `log_dump` is S0d-2's to check.
+   - **S0d-2: no change needed.** `log_dump` names `oracle_obstacles` through anatomy's `ChannelFormat`, as racing's names `oracle_gates`, and the apps open a scout log with `kScoutChannels`.
 5. **The run ends at the duration, or when the scorer stops it.** A run that reaches the goal must stop cleanly, and a vehicle that hovers at the goal must not count as a failure.
    - **S0d-1: ruled out.** The scorer marks the run complete when the vehicle comes within the goal radius, and scores nothing after that, so a vehicle holding at the goal can't fail. The closed loop (`run_closed_loop`) stops at completion. A SITL run logs to its duration, and scoring its log stops at the goal the same way.
 6. **Names.** racing-drone reaches anatomy through bridge headers. scout-drone uses anatomy's names directly, in `branes::scout`. If something is reachable only through a bridge, that's an anatomy gap.
@@ -75,6 +82,8 @@ These are the assumptions to check, from reading anatomy. S0 confirms or rules o
 7. **The YAML helpers are private.** Not in this list as first written; found in S0b. A mission's world file is loaded with the helpers anatomy's own loaders use, but they were private to anatomy's `sdk/src/config/`, and racing-drone keeps a copy. **Confirmed:** they become a public library, `branes::anatomy_yaml` ([anatomy#23](https://github.com/branes-ai/anatomy/pull/23)).
 8. **A mission's own input can't reach the stack in the loops.** Not in this list as first written; found in S0c. A stack's inputs are its profile's, and `MobilityProfile`'s are the IMU and the camera only. A mission channel such as racing's `oracle_gates` is recorded and passed through, never consumed. Scout's planner needs the obstacles seen, so `ScoutProfile` extends `MobilityProfile` with `oracle_obstacles`. anatomy's `harness::Runner` drives that stack, but `MobileStack` requires the profile to be `MobilityProfile` exactly, and `run_closed_loop` and `run_sitl` take a `MobileStack` only. **Confirmed:** the loops must take a stack whose profile has `MobilityProfile`'s truth, outputs and codecs, whatever inputs it adds. That's an anatomy PR (A3), released before S0d. Until then, a test in scout pins the gap (`!MobileStack<...>`).
    - **A3: fixed.** `MobileStack` takes a stack whose profile is a `MobileProfile`: `MobilityProfile`'s truth, outputs and codecs, with every one of its inputs and any inputs the mission adds ([anatomy#26](https://github.com/branes-ai/anatomy/pull/26), released in v0.6.0). scout-drone moves to v0.6.1, and its test asserts that its stack is a `MobileStack`.
+9. **A log can't rebuild a generated world.** Not in this list as first written; found in S0d-2. The log header carries the world file verbatim, but not the scenario, and a generated field needs the scenario's seed. Neither can `score_log` read the scenario's collision radius or speed limit from it.
+   - **S0d-2: worked around in scout, with no anatomy change.** `sitl` writes the field flown, its obstacles listed (`harness::flown_field_yaml`), as the header's world, so `replay` and `score_log` read back exactly that field, and `score_log` takes the collision radius and the speed limit as options, as racing's takes the speed limit. A header that carried the scenario would let a log keep the field file and its seed instead. That's an anatomy change for when a second mission needs it.
 
 Each change to anatomy must keep racing-drone's outputs byte-identical (its `tools/compare_outputs.sh`, the reference-log fixture, and gates P0 and P1), as in steps 1 and 2.
 
@@ -87,6 +96,8 @@ Each change to anatomy must keep racing-drone's outputs byte-identical (its `too
 | **S0c** | scout-drone | The contracts and slots: `ObstacleObservations` and its codec, the `oracle_obstacles` channel and `ScoutProfile`, the `Estimator` and `Planner` concepts, their nulls, `GroundTruthEstimator` and `GoalPlanner`, the `Stack`, the slot registry and the baseline generator, and the `null` and `s0-gt-pid` baselines |
 | **S0d-1** | scout-drone | The simulator and the scorer: `ObstacleOracle`, `Simulator`, `Scorer`, and the scored run the batch shares (`run_one`), with their tests |
 | **S0d-2** | scout-drone | The apps and the scenarios: `sitl`, `replay`, `sitl_batch` (with `--set`), `score`, `log_dump`, and the acceptance runs |
+| **V1** | reflex | The scene in `reflex-trace/1`: its schema and validator, the player drawing collision shapes, procedural trees and gates, and moving entities, the standard, and a release |
+| **S0e** | scout-drone | The replay: `trace_export`, its test, and a docs page that plays a forest run, on the released trace player |
 | **An** | anatomy | One PR per assumption confirmed, each released; racing-drone stays byte-identical, and scout-drone bumps its pin |
 | **R** | racing-drone | ADR 0008's current state: step 5.3 done, with links to this plan |
 
@@ -102,7 +113,8 @@ S0b–S0d-2 may each wait on an anatomy PR. Where anatomy's change is needed fir
 | S0b | scout-drone | Merged as [#7](https://github.com/branes-ai/scout-drone/pull/7): the field, its file, the generated obstacles and the scenario schema, on anatomy v0.5.0. Released in v0.2.0 |
 | S0c | scout-drone | Merged as [#9](https://github.com/branes-ai/scout-drone/pull/9): the obstacles seen and their channel, `ScoutProfile`, the slots and the `Stack`, the slot registry and the baseline generator, and the `null` and `s0-gt-pid` baselines. Assumption 2 ruled out; 8 confirmed, for A3. Released in v0.3.0 |
 | A3 | anatomy | Merged as [#26](https://github.com/branes-ai/anatomy/pull/26): the mobile loops take a stack whose profile adds inputs (assumption 8). racing-drone byte-identical. Released in v0.6.0; scout-drone moves to v0.6.1, and its stack is a `MobileStack` |
-| S0d-1 | scout-drone | The obstacle oracle, the simulator, the scorer (with `sim.collision_radius_m`) and the scored run. Assumptions 3 and 5 ruled out |
+| S0d-1 | scout-drone | Merged as [#19](https://github.com/branes-ai/scout-drone/pull/19): the obstacle oracle, the simulator, the scorer (with `sim.collision_radius_m`) and the scored run. Assumptions 3 and 5 ruled out |
+| S0d-2 | scout-drone | The apps (`sitl`, `replay`, `sitl_batch` with `--set`, `score_log`, `log_dump`), the scenarios, and the acceptance runs. Assumption 4's `log_dump` check needs no change; 9 found, and worked around in scout |
 
 ## Acceptance (stated before any test is run)
 
@@ -118,6 +130,24 @@ S0b–S0d-2 may each wait on an anatomy PR. Where anatomy's change is needed fir
 6. **Each anatomy assumption** in the list above is recorded in this plan as confirmed (with the anatomy PR that fixes it) or ruled out (with why). Each anatomy PR keeps racing-drone's outputs byte-identical, checked with its `compare_outputs.sh`.
 7. **The docs:** the docs site is published, and this plan is on the architecture site.
 8. **ADR 0008's current state** says step 5.3 is done and links here.
+9. **The replay:** a forest run that collides and one that reaches the goal play in the docs site, the trees and the goal drawn, and the collision shapes shown on demand. The trace validates against the released schema.
+
+## Results (S0d-2)
+
+Run with `s0-gt-pid` and the scenarios in `scenarios/`, at the anatomy pin of this plan:
+
+- **Determinism (3):** two `sitl` runs of `s0-determinism` (the forest, with the randomization, the IMU, camera corruption and the oracle's noise) write byte-identical logs, and `replay --verify` reproduces all 6,000 outputs, its log byte-identical to the SITL log. CTest `gate.s0.determinism`.
+- **The null baseline (4):** `null-smoke` runs its 5 s with no error, and scores as timed out on the pad. CTest `gate.null.smoke`.
+- **The open field (5):** 100 of 100 nominal seeds reach the goal (p50 14.3 s, path 50.4 m). CTest `gate.s0.open`, at 99 of 100.
+- **The forest (5), 100 nominal seeds at each cruise speed:**
+
+  | Cruise speed | Reached | Collided | Other | Time to goal, p50 | Peak speed, p50 |
+  |---|---|---|---|---|---|
+  | 2 m/s | 32 | 68 | 0 | 18.9 s | 2.78 m/s |
+  | 3 m/s | 32 | 68 | 0 | 14.3 s | 3.76 m/s |
+  | 4 m/s | 32 | 68 | 0 | 12.3 s | 4.45 m/s |
+
+  The same 32 seeds reach the goal at every speed: a straight line to the goal clears the forest or it doesn't, whatever the speed. That's the lower bound, flat in speed, which an avoiding baseline must beat. The peak speed runs over the cruise speed as the controller chases the planner's carrot: by about 0.8 m/s at 2 and 3 m/s, and by 0.45 m/s at 4 m/s, where the controller's speed cap (`max_speed_m_s`, 4.5 m/s) limits it.
 
 ## Risks
 
