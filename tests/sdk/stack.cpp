@@ -60,9 +60,10 @@ static_assert(an::RunnableStack<NullStack<double>>);
 static_assert(an::RunnableStack<GtStack<double>>);
 static_assert(an::RunnableStack<GtStack<float>>);  // scalar-generic
 static_assert(an::is_profile_input<scout::ScoutProfile>(scout::log::oracle_obstacles));
-// Not yet a MobileStack: anatomy's loops take MobilityProfile only, which
-// can't hand a mission's channel to the stack (docs/plan/bring-up/, assumption 8).
-static_assert(!an::MobileStack<GtStack<double>>);
+// A MobileStack: its profile adds oracle_obstacles to MobilityProfile's inputs,
+// and anatomy's loops take it (docs/plan/bring-up/, assumption 8).
+static_assert(an::MobileStack<GtStack<double>>);
+static_assert(an::MobileStack<GtStack<float>>);
 
 const std::filesystem::path src = SCOUT_SOURCE_DIR;
 
