@@ -23,6 +23,7 @@
 #include <branes/scout/msg/field.hpp>
 #include <branes/scout/sim/oracle.hpp>
 
+#include <cmath>
 #include <string>
 #include <utility>
 
@@ -34,8 +35,10 @@ public:
 
     /// Validate the inputs and build the run over `field`, the field the
     /// scenario flies (config::load_scenario_field). Fails, besides
-    /// BasicSimulator's checks, if the field isn't valid or the scenario does
-    /// not carry scout's sim parameters (config::follows_scout_schema).
+    /// BasicSimulator's checks, if the field isn't valid, or the scenario does
+    /// not carry scout's sim parameters (config::follows_scout_schema) or one
+    /// of them isn't finite and ≥ 0. The loader checks them; a scenario built
+    /// in code is checked here, before the oracle and the scorer take them.
     [[nodiscard]] static anatomy::result<Simulator, std::string> create(const anatomy::config::VehicleConfig& vehicle,
                                                                         const Field<double>& field,
                                                                         const config::ScenarioConfig& scenario,
@@ -47,7 +50,15 @@ public:
         if (!config::follows_scout_schema(scenario)) {
             return std::string("the scenario has no scout sim parameters (set world_sim, see config::kScoutScenario)");
         }
-        ObstacleOracle oracle(field, config::oracle_range_m(scenario), config::oracle_sigma_m(scenario), scenario.seed);
+        const double range = config::oracle_range_m(scenario);
+        const double sigma = config::oracle_sigma_m(scenario);
+        const double radius = config::collision_radius_m(scenario);
+        for (const double v : {range, sigma, sigma * std::sqrt(3.0), radius}) {
+            if (!(std::isfinite(v) && v >= 0)) {
+                return std::string("the scenario's sim parameters must be finite and ≥ 0");
+            }
+        }
+        ObstacleOracle oracle(field, range, sigma, scenario.seed);
         auto base = Base::create(vehicle, field.start, scenario, control_hz, std::move(oracle), options);
         if (!base) {
             return base.error();

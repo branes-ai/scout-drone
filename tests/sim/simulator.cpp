@@ -2,7 +2,7 @@
 // obstacle oracle. After each camera frame comes the oracle's event at the
 // frame's time, the obstacles seen from the truth then; the same scenario
 // gives the same events; and it refuses a scenario without scout's sim
-// parameters, or a field that isn't valid.
+// parameters or with one that isn't finite and ≥ 0, or a field that isn't valid.
 
 #include <branes/anatomy/log/log.hpp>
 #include <branes/anatomy/mobility/config/vehicle.hpp>
@@ -15,8 +15,11 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <filesystem>
+#include <limits>
 #include <optional>
 #include <string>
 #include <vector>
@@ -114,7 +117,8 @@ TEST_CASE("simulator: the same scenario gives the same events", "[simulator]") {
     }
 }
 
-TEST_CASE("simulator: it refuses a scenario without scout's sim parameters, or a bad field", "[simulator]") {
+TEST_CASE("simulator: it refuses a scenario without scout's sim parameters, a bad parameter, or a bad field",
+          "[simulator]") {
     auto s = scenario(0.3, 0.0);
     const Field<double> f = forest(s);
     config::ScenarioConfig bare = s;
@@ -122,6 +126,16 @@ TEST_CASE("simulator: it refuses a scenario without scout's sim parameters, or a
     const auto no_schema = sim::Simulator::create(vehicle(), f, bare, 100.0);
     REQUIRE_FALSE(no_schema);
     CHECK(no_schema.error().find("scout sim parameters") != std::string::npos);
+
+    for (const std::size_t i : {0u, 1u, 2u}) {  // the range, the noise, the collision radius
+        for (const double v : {-1.0, std::nan(""), std::numeric_limits<double>::infinity()}) {
+            config::ScenarioConfig odd = s;
+            odd.world_sim[i] = v;
+            const auto r = sim::Simulator::create(vehicle(), f, odd, 100.0);
+            REQUIRE_FALSE(r);
+            CHECK(r.error() == "the scenario's sim parameters must be finite and ≥ 0");
+        }
+    }
 
     Field<double> bad = f;
     bad.goal.radius = 0;

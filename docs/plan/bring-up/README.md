@@ -50,7 +50,7 @@ There's no gate detector. The oracle stands in for perception until cortex's dep
 - `s0-gt-pid`: the true state (`GroundTruthEstimator`), a `GoalPlanner` that flies a straight line to the goal at a cruise speed and holds there, and `CascadedPid`. The planner climbs from the pad to the goal's height first, as racing's waypoint planner climbs to its first gate. It doesn't avoid obstacles. It's the lower bound every avoiding baseline must beat, as B0 is racing's upper bound.
 
 **The scorer:**
-- **The outcome:** reached (within the goal radius), collided (the vehicle's radius touches an obstacle or the ground away from the pad), left the geofence, over the speed limit, or timed out. The vehicle's radius is the scenario's `sim.collision_radius_m`, 0.25 m by default: the vehicle file has the arm length but no propeller size.
+- **The outcome:** reached (within the goal radius), collided (the vehicle's radius touches an obstacle, or the vehicle is on the ground after takeoff, back on the pad included), left the geofence, over the speed limit, or timed out. The vehicle's radius is the scenario's `sim.collision_radius_m`, 0.25 m by default: the vehicle file has the arm length but no propeller size.
 - **The measures:** the time to the goal, the minimum clearance to any obstacle, the path length, and the peak speed.
 - **`sitl_batch`:** the success rate over N seeds, with each outcome's count. The success rate against speed (ADR 0007) comes from running the batch at several cruise speeds: `--set cruise_speed_m_s=<v>` overrides a numeric baseline parameter for one batch. `sitl` and `replay` don't take it, so a reference log always has the baseline file's parameters.
 
