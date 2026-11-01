@@ -1,0 +1,104 @@
+---
+title: Watching a Forest Replay
+description: Two SITL runs of baseline s0-gt-pid through the forest, one that hits a trunk and one that reaches the goal, played in reflex's trace player with the field drawn, and how to export your own.
+---
+
+import TracePlayer from '@branes-ai/trace-player/TracePlayer.astro';
+import collision from '@site/traces/s0-forest-collision.json';
+import nearMiss from '@site/traces/s0-forest-near-miss.json';
+
+A SITL run writes a log of everything the stack saw and did. `trace_export`
+turns the log into a replay in `reflex-trace/1`, the trace format of
+[reflex](https://github.com/branes-ai/reflex), with the field the run flew
+as the replay's scene: each obstacle a cylinder drawn as a tree, the goal,
+and the geofence. This page plays two replays in reflex's trace player. The
+player runs nothing: it shows the logged truth sample by sample, with its
+provenance underneath.
+
+Baseline `s0-gt-pid` flies a straight line from the pad to the goal at
+3 m/s on the true state, and avoids nothing
+([bring-up plan](../plan/bring-up/README.md)). On the
+[forest field](../../fields/forest-60.yaml) each seed grows a different
+forest, so whether a run gets through is up to the forest: over 100 seeds,
+32 reach the goal at every cruise speed tried.
+
+## A collision
+
+The run is `scenarios/s0-forest-collision.yaml`, seed 1706. Its score: it
+collides with obstacle 0 at 11.8 s, 41.0 m along its path and 10.4 m short
+of the goal.
+
+<TracePlayer
+  trace={collision}
+  title="Where does a straight line through the forest hit a trunk?"
+  description="The SITL run of baseline s0-gt-pid on scenarios/s0-forest-collision.yaml (seed 1706), sampled every 0.05 s from the 1 kHz truth. The vehicle takes off at 0.03 s, climbs to the goal's 2 m, and flies the straight line toward the goal 50 m away at about 3 m/s. At 11.8 s the vehicle, a sphere of the scenario's 0.25 m collision radius, touches the trunk of obstacle 0: the run has collided, and the replay ends 2 s later. The scene is the forest the seed grew: 54 trunks drawn as trees, the goal (green) and the geofence. Collision shapes shows the trunks the scorer tests. The first panel plots the true position with the planner's reference dashed; the second the rotor thrusts at the cursor."
+  plots={[
+    { channel: 'position', title: 'Position', labels: ['x', 'y', 'z'], setpoint: true, setpointLabel: 'reference' },
+    { kind: 'bars', channel: 'rotor_thrusts', title: 'Rotor thrusts', labels: ['0', '1', '2', '3'], label: 'Thrust' },
+  ]}
+  thrustScale={0.05}
+  repo="https://github.com/branes-ai/scout-drone"
+  provenanceNote="a recorded SITL run (tools/gen_replay.sh)"
+/>
+
+What to look for:
+
+- **The line doesn't bend.** The reference runs straight at the goal, and
+  the vehicle follows it into the trunk: the baseline sees the obstacles
+  (the oracle reports them every frame) but doesn't use them.
+- **The collision event.** Seek to it with its button. Turn on *Collision
+  shapes* to see the trunk the vehicle's sphere touched; the canopies are only
+  drawn.
+
+## A near miss
+
+The run is `scenarios/s0-forest-near-miss.yaml`, seed 1710. Its score: it
+reaches the goal in 14.3 s from takeoff, along 50.5 m, and its closest
+approach leaves 0.056 m between the vehicle's 0.25 m collision sphere and a trunk.
+
+<TracePlayer
+  trace={nearMiss}
+  title="How close does a straight line pass the trunks when it gets through?"
+  description="The SITL run of baseline s0-gt-pid on scenarios/s0-forest-near-miss.yaml (seed 1710), sampled every 0.05 s from the 1 kHz truth. The vehicle takes off at 0.03 s, climbs, and flies the straight line to the goal. It passes one trunk with 0.056 m to spare beyond its 0.25 m collision radius, and reaches the goal's 1 m radius 14.3 s after takeoff; the replay ends 2 s later, with the vehicle holding at the goal. The scene is the forest this seed grew: 54 trunks drawn as trees, the goal and the geofence. The first panel plots the true position with the planner's reference dashed; the second the rotor thrusts at the cursor."
+  plots={[
+    { channel: 'position', title: 'Position', labels: ['x', 'y', 'z'], setpoint: true, setpointLabel: 'reference' },
+    { kind: 'bars', channel: 'rotor_thrusts', title: 'Rotor thrusts', labels: ['0', '1', '2', '3'], label: 'Thrust' },
+  ]}
+  thrustScale={0.05}
+  repo="https://github.com/branes-ai/scout-drone"
+  provenanceNote="a recorded SITL run (tools/gen_replay.sh)"
+/>
+
+The same straight line, through another forest: nothing changed but the
+seed. That's why `s0-gt-pid` is the lower bound an avoiding planner must
+beat.
+
+## Export a run
+
+Build the tools and record a run, then export it, from the repo root:
+
+```bash
+cmake --preset gcc-release && cmake --build --preset gcc-release
+b=build/gcc-release
+$b/sitl_s0-gt-pid --scenario scenarios/s0-forest.yaml --out run.brlog
+$b/apps/trace_export --log run.brlog --scenario scenarios/s0-forest.yaml --out replay.json
+```
+
+`--scenario` must be the file the log was recorded from: `trace_export`
+checks its hash against the log's, and takes the trace's seed and physics
+step and the scorer's collision radius and speed limit from it. `--rate`
+sets the sample rate (20 Hz by default). `tools/gen_replay.sh` records this
+page's two replays.
+
+To play a replay on a page, import the player and the trace in an `.mdx`
+document in `docs/`, as this one does:
+
+```mdx
+import TracePlayer from '@branes-ai/trace-player/TracePlayer.astro';
+import replay from '@site/traces/my-replay.json';
+
+<TracePlayer trace={replay} title="…?" description="…" plots={[…]} />
+```
+
+The player refuses a trace that isn't valid `reflex-trace/1`, so the docs
+build fails rather than publish a broken replay.

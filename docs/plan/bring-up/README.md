@@ -114,7 +114,10 @@ S0b–S0d-2 may each wait on an anatomy PR. Where anatomy's change is needed fir
 | S0c | scout-drone | Merged as [#9](https://github.com/branes-ai/scout-drone/pull/9): the obstacles seen and their channel, `ScoutProfile`, the slots and the `Stack`, the slot registry and the baseline generator, and the `null` and `s0-gt-pid` baselines. Assumption 2 ruled out; 8 confirmed, for A3. Released in v0.3.0 |
 | A3 | anatomy | Merged as [#26](https://github.com/branes-ai/anatomy/pull/26): the mobile loops take a stack whose profile adds inputs (assumption 8). racing-drone byte-identical. Released in v0.6.0; scout-drone moves to v0.6.1, and its stack is a `MobileStack` |
 | S0d-1 | scout-drone | Merged as [#19](https://github.com/branes-ai/scout-drone/pull/19): the obstacle oracle, the simulator, the scorer (with `sim.collision_radius_m`) and the scored run. Assumptions 3 and 5 ruled out |
-| S0d-2 | scout-drone | The apps (`sitl`, `replay`, `sitl_batch` with `--set`, `score_log`, `log_dump`), the scenarios, and the acceptance runs. Assumption 4's `log_dump` check needs no change; 9 found, and worked around in scout |
+| S0d-2 | scout-drone | Merged as [#21](https://github.com/branes-ai/scout-drone/pull/21): the apps (`sitl`, `replay`, `sitl_batch` with `--set`, `score_log`, `log_dump`), the scenarios, and the acceptance runs. Assumption 4's `log_dump` check needs no change; 9 found, and worked around in scout. Released in v0.5.0 |
+| V1 | reflex | Merged as [reflex#80](https://github.com/branes-ai/reflex/pull/80): the scene in `reflex-trace/1` (collision shapes, procedural trees, moving entities) and the player drawing it. Released in v0.10.0 |
+| A4 | anatomy | Merged as [#34](https://github.com/branes-ai/anatomy/pull/34): reflex v0.10.0, whose library is unchanged since anatomy's pin, and which defines the trace writer for consumers. racing-drone byte-identical. Released in v0.6.3 |
+| S0e | scout-drone | anatomy v0.6.3; `trace_export` (the field as the scene), its test, and the forest replays page |
 
 ## Acceptance (stated before any test is run)
 
@@ -148,6 +151,10 @@ Run with `s0-gt-pid` and the scenarios in `scenarios/`, at the anatomy pin of th
   | 4 m/s | 32 | 68 | 0 | 12.3 s | 4.45 m/s |
 
   The same 32 seeds reach the goal at every speed: a straight line to the goal clears the forest or it doesn't, whatever the speed. That's the lower bound, flat in speed, which an avoiding baseline must beat. The peak speed runs over the cruise speed as the controller chases the planner's carrot: by about 0.8 m/s at 2 and 3 m/s, and by 0.45 m/s at 4 m/s, where the controller's speed cap (`max_speed_m_s`, 4.5 m/s) limits it.
+
+## Results (S0e)
+
+- **The replay (9):** [Watching a forest replay](../../guides/forest-replay.mdx) plays two SITL runs of `s0-gt-pid` on the forest, at reflex's trace player v0.10.0, the field drawn as the scene: seed 1706 (`scenarios/s0-forest-collision.yaml`), which collides with obstacle 0 at 11.8 s, 10.4 m short of the goal, and seed 1710 (`s0-forest-near-miss.yaml`), which reaches the goal in 14.3 s with 0.056 m to spare at its closest. *Collision shapes* shows the trunks the scorer tests. The docs build validates both traces against the released schema. Each replay's score matches the batch's for its seed, so a logged run and a closed-loop run agree.
 
 ## Risks
 

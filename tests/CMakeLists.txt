@@ -100,3 +100,13 @@ add_test(NAME tools.batch_set.not_a_number
         --scenario ${PROJECT_SOURCE_DIR}/scenarios/s0-open.yaml --seeds 1 --set cruise_speed_m_s=fast)
 set_tests_properties(tools.batch_set.not_a_number PROPERTIES
     PASS_REGULAR_EXPRESSION "'fast' is not a finite number")
+
+# trace_export writes a log as a reflex-trace/1 replay with the field as its
+# scene (S0e, docs/plan/bring-up/).
+add_test(NAME tools.trace_export
+    COMMAND ${CMAKE_COMMAND}
+        -DSITL=$<TARGET_FILE:sitl_s0-gt-pid>
+        -DEXPORT=$<TARGET_FILE:trace_export>
+        -DSOURCE_DIR=${PROJECT_SOURCE_DIR}
+        -DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/tools_trace_export
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/gate/trace_export_test.cmake)
