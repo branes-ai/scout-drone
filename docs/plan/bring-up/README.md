@@ -8,7 +8,7 @@ Step 3 of racing-drone's [ADR 0008](https://github.com/branes-ai/racing-drone/bl
 
 ## Goal
 
-1. **scout-drone is a mission repo like racing-drone,** built on anatomy v0.5.0 (core, mobility, glue, mobility_sim): its build, CI, releases, docs and docs site.
+1. **scout-drone is a mission repo like racing-drone,** built on anatomy v0.6.1 (core, mobility, glue, mobility_sim): its build, CI, releases, docs and docs site.
 2. **It flies its first mission, S0:** from a start pose to a goal through a field of static obstacles. The stack sees the obstacles through an oracle sensor computed from truth.
 3. **Every anatomy assumption S0 runs into is fixed in anatomy,** with racing-drone's outputs byte-identical.
 
@@ -72,6 +72,7 @@ These are the assumptions to check, from reading anatomy. S0 confirms or rules o
    - **S0c: none so far.** The slots, the stack, the slot registry and the baseline generator use anatomy's names directly. The registry names anatomy's neutral nulls and `CascadedPid` by their own types.
 7. **The YAML helpers are private.** Not in this list as first written; found in S0b. A mission's world file is loaded with the helpers anatomy's own loaders use, but they were private to anatomy's `sdk/src/config/`, and racing-drone keeps a copy. **Confirmed:** they become a public library, `branes::anatomy_yaml` ([anatomy#23](https://github.com/branes-ai/anatomy/pull/23)).
 8. **A mission's own input can't reach the stack in the loops.** Not in this list as first written; found in S0c. A stack's inputs are its profile's, and `MobilityProfile`'s are the IMU and the camera only. A mission channel such as racing's `oracle_gates` is recorded and passed through, never consumed. Scout's planner needs the obstacles seen, so `ScoutProfile` extends `MobilityProfile` with `oracle_obstacles`. anatomy's `harness::Runner` drives that stack, but `MobileStack` requires the profile to be `MobilityProfile` exactly, and `run_closed_loop` and `run_sitl` take a `MobileStack` only. **Confirmed:** the loops must take a stack whose profile has `MobilityProfile`'s truth, outputs and codecs, whatever inputs it adds. That's an anatomy PR (A3), released before S0d. Until then, a test in scout pins the gap (`!MobileStack<...>`).
+   - **A3: fixed.** `MobileStack` takes a stack whose profile is a `MobileProfile`: `MobilityProfile`'s truth, outputs and codecs, with every one of its inputs and any the mission adds ([anatomy#26](https://github.com/branes-ai/anatomy/pull/26), released in v0.6.0). scout-drone moves to v0.6.1, and its test asserts that its stack is a `MobileStack`.
 
 Each change to anatomy must keep racing-drone's outputs byte-identical (its `tools/compare_outputs.sh`, the reference-log fixture, and gates P0 and P1), as in steps 1 and 2.
 
@@ -96,7 +97,8 @@ S0b–S0d may each wait on an anatomy PR. Where anatomy's change is needed first
 | A1 | anatomy | Merged as [#23](https://github.com/branes-ai/anatomy/pull/23): the YAML helpers, public (assumption 7). racing-drone byte-identical. Released in v0.5.0 |
 | A2 | anatomy | Merged as [#24](https://github.com/branes-ai/anatomy/pull/24): `stream_seed` in the core (assumption 1). racing-drone byte-identical. Released in v0.5.0 |
 | S0b | scout-drone | Merged as [#7](https://github.com/branes-ai/scout-drone/pull/7): the field, its file, the generated obstacles and the scenario schema, on anatomy v0.5.0. Released in v0.2.0 |
-| S0c | scout-drone | The obstacles seen and their channel, `ScoutProfile`, the slots and the `Stack`, the slot registry and the baseline generator, and the `null` and `s0-gt-pid` baselines. Assumption 2 ruled out; 8 confirmed, for A3 |
+| S0c | scout-drone | Merged as [#9](https://github.com/branes-ai/scout-drone/pull/9): the obstacles seen and their channel, `ScoutProfile`, the slots and the `Stack`, the slot registry and the baseline generator, and the `null` and `s0-gt-pid` baselines. Assumption 2 ruled out; 8 confirmed, for A3. Released in v0.3.0 |
+| A3 | anatomy | Merged as [#26](https://github.com/branes-ai/anatomy/pull/26): the mobile loops take a stack whose profile adds inputs (assumption 8). racing-drone byte-identical. Released in v0.6.0; scout-drone moves to v0.6.1, and its stack is a `MobileStack` |
 
 ## Acceptance (stated before any test is run)
 
@@ -117,5 +119,5 @@ S0b–S0d may each wait on an anatomy PR. Where anatomy's change is needed first
 
 - **The straight-line baseline makes a weak lower bound** on a dense field. That's intended: the number to beat is the success rate of flying blind.
 - **The oracle is not perception.** Results with the oracle bound a real depth pipeline from above. They're reported as oracle results.
-- **An anatomy change can ripple into racing-drone.** Racing-drone pins v0.3.0, and anatomy is at v0.5.0. A change that S0 needs ships in a release racing-drone hasn't adopted. The byte-identity check runs against racing-drone at the newest anatomy, so the next bump stays safe.
+- **An anatomy change can ripple into racing-drone.** Racing-drone pins v0.3.0, and anatomy is at v0.6.1. A change that S0 needs ships in a release racing-drone hasn't adopted. The byte-identity check runs against racing-drone at the newest anatomy, so the next bump stays safe.
 - **The vehicle is racing's RP-1** until scout-drone has a vehicle of its own. Its configs are copied into `vehicles/`, not shared, because a vehicle is mission data.
