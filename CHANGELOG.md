@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/branes-ai/scout-drone/compare/v0.5.0...v0.6.0) (2026-11-02)
+
+
+### Features
+
+* **sim:** replay a run in the docs site, with the field drawn (S0e) ([#23](https://github.com/branes-ai/scout-drone/issues/23)) ([1022e0d](https://github.com/branes-ai/scout-drone/commit/1022e0d0125043207705ceb85e5eda8c69e89f1d))
+
 ## [0.5.0](https://github.com/branes-ai/scout-drone/compare/v0.4.0...v0.5.0) (2026-11-01)
 
 
