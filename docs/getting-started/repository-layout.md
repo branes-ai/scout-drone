@@ -2,7 +2,7 @@
 
 ```text
 scout-drone/
-├── apps/         # the harnesses: sitl, replay and sitl_batch per baseline, and score_log and log_dump
+├── apps/         # the harnesses: sitl, replay and sitl_batch per baseline, and score_log, log_dump and trace_export
 ├── baselines/    # one file per baseline: its slot composition and its parameters
 ├── cmake/        # deps (anatomy), warnings, test registration, the slot registry and the baseline generator
 ├── docs/         # the documents: the source of this site
@@ -11,6 +11,7 @@ scout-drone/
 ├── scenarios/    # the runs: a field, a vehicle, a duration, a seed, the randomization and the oracle
 ├── sdk/          # branes::scout: the mission's world, the obstacles seen, slots, stack, configs and channels
 ├── sim/          # branes::scout_sim: the simulator (the obstacle oracle), the scorer, and the scored run
+├── tools/        # gen_replay.sh: records the docs site's forest replays
 ├── tests/        # Catch2 tests, one executable per tests/<layer>/<name>.cpp; fixtures/ holds their data
 └── vehicles/     # the vehicles, for now racing-drone's RP-1
 ```
