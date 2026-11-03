@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.2](https://github.com/branes-ai/scout-drone/compare/v0.7.1...v0.7.2) (2026-11-03)
+
+
+### Build System
+
+* **deps:** pin anatomy v0.9.2 ([#30](https://github.com/branes-ai/scout-drone/issues/30)) ([64c9bd9](https://github.com/branes-ai/scout-drone/commit/64c9bd9ca57ec71c7f1eb96873424ccba29ecf78))
+
 ## [0.7.1](https://github.com/branes-ai/scout-drone/compare/v0.7.0...v0.7.1) (2026-11-03)
 
 
