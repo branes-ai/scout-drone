@@ -6,7 +6,14 @@
 # the commit anatomy pins, so the two never disagree.
 include(FetchContent)
 
-set(FETCHCONTENT_UPDATES_DISCONNECTED ON CACHE BOOL "Skip FetchContent update steps")
+# Every pin is a tag or a commit, so a configure fetches only when a pin moves:
+# the update step finds the commit checked out and stops. With updates
+# disconnected, a moved pin fails to configure in an existing build tree whose
+# clone predates the new commit. Earlier versions of this file cached
+# FETCHCONTENT_UPDATES_DISCONNECTED ON, and anatomy and the reflex it fetches
+# cache it ON (reflex with FORCE), so this normal variable, which wins over the
+# cache entry here and in their scopes, keeps it OFF.
+set(FETCHCONTENT_UPDATES_DISCONNECTED OFF)
 
 if(SCOUT_BUILD_TESTS AND BUILD_TESTING)
     FetchContent_Declare(
