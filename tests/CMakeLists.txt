@@ -55,6 +55,34 @@ add_test(NAME gate.s0.determinism
         -DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/gate_s0
         -P ${CMAKE_CURRENT_SOURCE_DIR}/gate/sitl_gate.cmake)
 
+# The graph build of each baseline (anatomy docs/plan/flow-graph, 2c): its
+# logs equal the slot build's on every scenario but for the hash, and its
+# batch's runs are the slot build's; and it is as deterministic.
+file(GLOB scenarios CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/scenarios/*.yaml)
+foreach(baseline null s0-gt-pid)
+    add_test(NAME gate.${baseline}.graph
+        COMMAND ${CMAKE_COMMAND}
+            -DSITL=$<TARGET_FILE:sitl_${baseline}>
+            -DSITL_GRAPH=$<TARGET_FILE:sitl_${baseline}_graph>
+            -DBATCH=$<TARGET_FILE:sitl_batch_${baseline}>
+            -DBATCH_GRAPH=$<TARGET_FILE:sitl_batch_${baseline}_graph>
+            -DLOG_COMPARE=$<TARGET_FILE:anatomy_log_compare>
+            "-DSCENARIOS=${scenarios}"
+            "-DBATCH_SCENARIOS=${PROJECT_SOURCE_DIR}/scenarios/s0-open.yaml;${PROJECT_SOURCE_DIR}/scenarios/s0-forest.yaml"
+            -DSEEDS=10
+            -DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/gate_${baseline}_graph
+            -P ${CMAKE_CURRENT_SOURCE_DIR}/gate/graph_gate.cmake)
+    set_tests_properties(gate.${baseline}.graph PROPERTIES LABELS "gate" TIMEOUT 900)
+endforeach()
+add_test(NAME gate.s0.determinism.graph
+    COMMAND ${CMAKE_COMMAND}
+        -DSITL=$<TARGET_FILE:sitl_s0-gt-pid_graph>
+        -DREPLAY=$<TARGET_FILE:replay_s0-gt-pid_graph>
+        -DSCORE=$<TARGET_FILE:score_log>
+        -DSCENARIO=${PROJECT_SOURCE_DIR}/scenarios/s0-determinism.yaml
+        -DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/gate_s0_graph
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/gate/sitl_gate.cmake)
+
 # The null baseline (acceptance 4): it runs to the duration, scored as timed out.
 add_test(NAME gate.null.smoke
     COMMAND ${CMAKE_COMMAND}
