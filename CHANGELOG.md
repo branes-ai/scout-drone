@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/branes-ai/scout-drone/compare/v0.7.0...v0.7.1) (2026-11-03)
+
+
+### Bug Fixes
+
+* **build:** fetch a moved pin in an existing build tree ([#28](https://github.com/branes-ai/scout-drone/issues/28)) ([7e6859e](https://github.com/branes-ai/scout-drone/commit/7e6859e7815e84f5e4a22ce3b4476c1475b3f558))
+
 ## [0.7.0](https://github.com/branes-ai/scout-drone/compare/v0.6.0...v0.7.0) (2026-11-03)
 
 
