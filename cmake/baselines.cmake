@@ -22,12 +22,39 @@
 #      sitl_batch_<name>, from the sources in apps/<harness>/ against that
 #      header (docs/plan/bring-up/, S0d-2).
 #
-#   scout_add_baseline(<name>)
+# With GRAPH, the file's `class:` and `graph:` give the baseline a second
+# build, its graph's (anatomy docs/plan/flow-graph, 2c), beside the slot build:
+#
+#   7. anatomy's flow_add_baseline() reads them, over scout's operator registry
+#      (cmake/flow_registry.cmake), and generates
+#      <build>/generated/<name>_graph/scout_baseline.hpp from
+#      cmake/scout_graph.hpp.in, which defines the same names as the slot
+#      build's header, over the graph's stack (flow/graph.hpp);
+#   8. adds scout_baseline_<name>_graph and the harnesses sitl_<name>_graph,
+#      replay_<name>_graph and sitl_batch_<name>_graph, from the same sources.
+#
+#   scout_add_baseline(<name> [GRAPH])
 include_guard(GLOBAL)
 include(${ANATOMY_CMAKE_DIR}/composition.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/flow_registry.cmake)
+
+# The harnesses of one build of a baseline: <harness>_<name><suffix>, against
+# the header of the interface target `target`.
+function(_scout_add_harnesses name suffix target)
+    foreach(harness sitl replay sitl_batch)
+        set(app ${harness}_${name}${suffix})
+        add_executable(${app} ${PROJECT_SOURCE_DIR}/apps/${harness}/main.cpp)
+        target_link_libraries(${app} PRIVATE ${target} branes::scout_sim)
+        scout_set_warnings(${app})
+        set_target_properties(${app} PROPERTIES
+            FOLDER "Baselines/${name}"
+            VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
+    endforeach()
+    target_link_libraries(sitl_batch_${name}${suffix} PRIVATE Threads::Threads)
+endfunction()
 
 function(scout_add_baseline name)
-    cmake_parse_arguments(PARSE_ARGV 1 arg "" "" "")
+    cmake_parse_arguments(PARSE_ARGV 1 arg "GRAPH" "" "")
     if(arg_UNPARSED_ARGUMENTS)
         message(FATAL_ERROR "scout_add_baseline(${name}): unexpected arguments '${arg_UNPARSED_ARGUMENTS}'")
     endif()
@@ -51,14 +78,24 @@ function(scout_add_baseline name)
     target_compile_definitions(${target} INTERFACE SCOUT_BASELINES_DIR="${PROJECT_SOURCE_DIR}/baselines")
 
     # ── 6. the harnesses ────────────────────────────────────────────────
-    foreach(harness sitl replay sitl_batch)
-        set(app ${harness}_${name})
-        add_executable(${app} ${PROJECT_SOURCE_DIR}/apps/${harness}/main.cpp)
-        target_link_libraries(${app} PRIVATE ${target} branes::scout_sim)
-        scout_set_warnings(${app})
-        set_target_properties(${app} PROPERTIES
-            FOLDER "Baselines/${name}"
-            VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
-    endforeach()
-    target_link_libraries(sitl_batch_${name} PRIVATE Threads::Threads)
+    _scout_add_harnesses(${name} "" ${target})
+
+    if(NOT arg_GRAPH)
+        return()
+    endif()
+
+    # ── 7. the graph: what fills it, and its header ─────────────────────
+    set(graph_dir ${CMAKE_BINARY_DIR}/generated/${name}_graph)
+    flow_add_baseline(scout ${name}
+        FILE ${file}
+        TEMPLATE ${PROJECT_SOURCE_DIR}/cmake/scout_graph.hpp.in
+        OUTPUT ${graph_dir}/scout_baseline.hpp)
+
+    # ── 8. the graph build's target and harnesses ───────────────────────
+    set(graph_target scout_baseline_${name}_graph)
+    add_library(${graph_target} INTERFACE)
+    target_include_directories(${graph_target} INTERFACE ${graph_dir})
+    target_link_libraries(${graph_target} INTERFACE branes::scout branes::anatomy_glue)
+    target_compile_definitions(${graph_target} INTERFACE SCOUT_BASELINES_DIR="${PROJECT_SOURCE_DIR}/baselines")
+    _scout_add_harnesses(${name} _graph ${graph_target})
 endfunction()

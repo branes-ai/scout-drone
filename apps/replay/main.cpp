@@ -56,8 +56,7 @@ int main(int argc, char** argv) {
     }
     const bool verify = args->has("verify");
 
-    auto baseline =
-        scout::harness::check_baseline(SCOUT_BASELINES_DIR, scout::baseline::name, scout::baseline::composition_hash);
+    auto baseline = scout::baseline::check_baseline(SCOUT_BASELINES_DIR);
     if (!baseline) {
         return fail(baseline.error());
     }
@@ -67,14 +66,12 @@ int main(int argc, char** argv) {
         return fail(reader.error().path + ": " + reader.error().message);
     }
     const an::log::LogHeader& in_header = reader->header();
-    if (verify && (in_header.baseline_name != scout::baseline::name ||
-                   in_header.composition_hash != scout::baseline::composition_hash)) {
+    if (verify && in_header.baseline_name != scout::baseline::name) {
         return fail("--verify needs a log recorded by this baseline (log: " + in_header.baseline_name + ")");
     }
 
     an::log::LogHeader header = in_header;
     header.baseline_name = std::string(scout::baseline::name);
-    header.composition_hash = std::string(scout::baseline::composition_hash);
     if (const auto f = args->value("field")) {
         const auto file = an::harness::read_with_hash(*f);
         if (!file) {
@@ -110,6 +107,12 @@ int main(int argc, char** argv) {
         return fail(built.error());
     }
     auto& stack = *built;
+    // The hash is the stack's: a graph's is known once it is built.
+    header.composition_hash = scout::baseline::hash(stack);
+    if (verify && in_header.composition_hash != header.composition_hash) {
+        return fail("--verify needs a log recorded by this baseline (log: " + in_header.baseline_name +
+                    ", composition_hash " + in_header.composition_hash + ")");
+    }
 
     // Opening the writer truncates --out, so it must not be the input log under another name.
     std::error_code same_ec;

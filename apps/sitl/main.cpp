@@ -57,8 +57,7 @@ int main(int argc, char** argv) {
         return fail("usage: --scenario <scenario.yaml> --out <run.brlog>");
     }
 
-    auto baseline =
-        scout::harness::check_baseline(SCOUT_BASELINES_DIR, scout::baseline::name, scout::baseline::composition_hash);
+    auto baseline = scout::baseline::check_baseline(SCOUT_BASELINES_DIR);
     if (!baseline) {
         return fail(baseline.error());
     }
@@ -100,7 +99,7 @@ int main(int argc, char** argv) {
 
     an::log::LogHeader header;
     header.baseline_name = std::string(scout::baseline::name);
-    header.composition_hash = std::string(scout::baseline::composition_hash);
+    header.composition_hash = scout::baseline::hash(stack);
     header.world_yaml = scout::harness::flown_field_yaml(*field_config, *field);
     header.world_hash = an::sha256_hex(header.world_yaml);
     header.vehicle_hash = vehicle_file->hash;
