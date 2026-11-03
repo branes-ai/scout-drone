@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.0](https://github.com/branes-ai/scout-drone/compare/v0.6.0...v0.7.0) (2026-11-03)
+
+
+### Features
+
+* **flow:** the graph builds of null and s0-gt-pid, equal to their slot builds ([#25](https://github.com/branes-ai/scout-drone/issues/25)) ([51b30f1](https://github.com/branes-ai/scout-drone/commit/51b30f1f665aaf4006c6d647c9f143edbfce87b5))
+
+
+### Documentation
+
+* **guides:** the mission's graph ([#27](https://github.com/branes-ai/scout-drone/issues/27)) ([987e788](https://github.com/branes-ai/scout-drone/commit/987e788bc041437f2d133c3bb638249e84a50eae))
+
 ## [0.6.0](https://github.com/branes-ai/scout-drone/compare/v0.5.0...v0.6.0) (2026-11-02)
 
 
