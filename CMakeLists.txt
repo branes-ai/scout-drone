@@ -44,11 +44,13 @@ add_subdirectory(sdk)
 add_subdirectory(sim)
 
 # Baselines: one composition per baselines/<name>.yaml, over scout's slot
-# registry (racing-drone docs/adr/0001-baseline-composition-framework.md).
+# registry (racing-drone docs/adr/0001-baseline-composition-framework.md);
+# with GRAPH, its graph's build beside it, over scout's operator registry
+# (anatomy docs/plan/flow-graph, 2c).
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/slot_registry.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/baselines.cmake)
-scout_add_baseline(null)
-scout_add_baseline(s0-gt-pid)
+scout_add_baseline(null GRAPH)
+scout_add_baseline(s0-gt-pid GRAPH)
 
 # The tools that read any baseline's log: score_log and log_dump.
 add_subdirectory(apps)

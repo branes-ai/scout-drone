@@ -93,8 +93,7 @@ int main(int argc, char** argv) {
         jobs = *v;
     }
 
-    auto baseline =
-        scout::harness::check_baseline(SCOUT_BASELINES_DIR, scout::baseline::name, scout::baseline::composition_hash);
+    auto baseline = scout::baseline::check_baseline(SCOUT_BASELINES_DIR);
     if (!baseline) {
         return fail(baseline.error());
     }
