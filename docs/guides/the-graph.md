@@ -128,6 +128,17 @@ $b/_deps/anatomy-build/apps/log_compare --a slot.brlog --b graph.brlog --except 
 It exits 0 when the logs are equal, 1 when they differ, naming the first
 difference, and 2 on an error.
 
+`sitl_<name>_graph` also prints the graph its stack runs, and exits without
+flying. `--print-graph text` gives the canonical form, which the log's
+`composition_hash` is the hash of; `--print-graph mermaid` gives a flowchart,
+which GitHub renders in a ` ```mermaid ` block. anatomy's
+[reading a graph](https://github.com/branes-ai/anatomy/blob/main/docs/guides/reading-a-graph.md) explains the chart. The slot build has no graph and
+refuses the option.
+
+```bash
+$b/sitl_s0-gt-pid_graph --scenario scenarios/s0-open.yaml --print-graph mermaid
+```
+
 ## The gates
 
 - `gate.<name>.graph`, for `null` and `s0-gt-pid`, flies both builds on every
