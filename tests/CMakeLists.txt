@@ -84,23 +84,23 @@ add_test(NAME gate.s0.determinism.graph
         -P ${CMAKE_CURRENT_SOURCE_DIR}/gate/sitl_gate.cmake)
 
 # --print-graph (anatomy docs/guides/reading-a-graph.md): a graph build
-# prints the graph it runs, as text or as a flowchart, and exits without
+# prints the graph it runs, as text or as a flowchart, and exits 0 without
 # flying; a slot build, a form other than the two, and --out with it are
-# refused.
-set(print_graph_args --scenario ${PROJECT_SOURCE_DIR}/scenarios/s0-open.yaml --print-graph)
-add_test(NAME tools.print_graph.text COMMAND sitl_s0-gt-pid_graph ${print_graph_args} text)
-add_test(NAME tools.print_graph.mermaid COMMAND sitl_s0-gt-pid_graph ${print_graph_args} mermaid)
-add_test(NAME tools.print_graph.slot COMMAND sitl_s0-gt-pid ${print_graph_args} text)
-add_test(NAME tools.print_graph.form COMMAND sitl_s0-gt-pid_graph ${print_graph_args} dot)
-add_test(NAME tools.print_graph.out
-    COMMAND sitl_s0-gt-pid_graph ${print_graph_args} text --out ${CMAKE_CURRENT_BINARY_DIR}/print_graph.brlog)
-set_tests_properties(tools.print_graph.text PROPERTIES
-    PASS_REGULAR_EXPRESSION "^flow-graph 1\nmission scout\nclass scoreboard\n")
-set_tests_properties(tools.print_graph.mermaid PROPERTIES
-    PASS_REGULAR_EXPRESSION "^flowchart LR\n    %% flow-graph scout, scoreboard, SITL-only\n")
-set_tests_properties(tools.print_graph.slot PROPERTIES PASS_REGULAR_EXPRESSION "a slot build has no graph")
-set_tests_properties(tools.print_graph.form PROPERTIES PASS_REGULAR_EXPRESSION "takes text or mermaid, not 'dot'")
-set_tests_properties(tools.print_graph.out PROPERTIES PASS_REGULAR_EXPRESSION "usage: ")
+# refused, with exit 1 (gate/print_graph_test.cmake).
+function(scout_print_graph_test name exe form expect_exit expect_output)
+    set(command $<TARGET_FILE:${exe}> --scenario ${PROJECT_SOURCE_DIR}/scenarios/s0-open.yaml --print-graph ${form} ${ARGN})
+    add_test(NAME tools.print_graph.${name}
+        COMMAND ${CMAKE_COMMAND}
+            "-DCOMMAND=${command}"
+            -DEXPECT_EXIT=${expect_exit}
+            "-DEXPECT_OUTPUT=${expect_output}"
+            -P ${CMAKE_CURRENT_SOURCE_DIR}/gate/print_graph_test.cmake)
+endfunction()
+scout_print_graph_test(text sitl_s0-gt-pid_graph text 0 "^flow-graph 1.mission scout.class scoreboard.")
+scout_print_graph_test(mermaid sitl_s0-gt-pid_graph mermaid 0 "^flowchart LR.    %% flow-graph scout, scoreboard, SITL-only.")
+scout_print_graph_test(slot sitl_s0-gt-pid text 1 "a slot build has no graph")
+scout_print_graph_test(form sitl_s0-gt-pid_graph dot 1 "takes text or mermaid, not 'dot'")
+scout_print_graph_test(out sitl_s0-gt-pid_graph text 1 "usage: " --out ${CMAKE_CURRENT_BINARY_DIR}/print_graph.brlog)
 
 # The null baseline (acceptance 4): it runs to the duration, scored as timed out.
 add_test(NAME gate.null.smoke
