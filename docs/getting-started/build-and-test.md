@@ -20,6 +20,7 @@ Each baseline gets `sitl_<name>`, `replay_<name>` and `sitl_batch_<name>`, in th
 b=build/gcc-debug
 $b/sitl_s0-gt-pid --scenario scenarios/s0-determinism.yaml --out run.brlog   # fly, and write the log
 $b/replay_s0-gt-pid --log run.brlog --out replay.brlog --verify              # reproduce every output
+$b/sitl_s0-gt-pid_graph --scenario scenarios/s0-open.yaml --print-graph mermaid  # the graph the stack runs, as a flowchart
 $b/apps/score_log --log run.brlog                                               # the score, as a JSON line
 $b/apps/log_dump --log run.brlog --out-dir run-dump                             # every channel as CSV
 $b/sitl_batch_s0-gt-pid --scenario scenarios/s0-forest.yaml --seeds 100 \
