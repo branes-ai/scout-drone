@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/branes-ai/scout-drone/compare/v0.7.2...v0.8.0) (2026-11-04)
+
+
+### Features
+
+* **sitl:** print the graph a graph build runs ([#32](https://github.com/branes-ai/scout-drone/issues/32)) ([5686a86](https://github.com/branes-ai/scout-drone/commit/5686a865d882d01cf1572358f44c00a13bc5a13f))
+
 ## [0.7.2](https://github.com/branes-ai/scout-drone/compare/v0.7.1...v0.7.2) (2026-11-03)
 
 
