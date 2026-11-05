@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.4](https://github.com/branes-ai/scout-drone/compare/v0.8.3...v0.8.4) (2026-11-05)
+
+
+### Continuous Integration
+
+* add Branes.AI CLA check ([#40](https://github.com/branes-ai/scout-drone/issues/40)) ([6433e92](https://github.com/branes-ai/scout-drone/commit/6433e927c97248b814b15fbd8cd6ae6fd0e7cc4f))
+
 ## [0.8.3](https://github.com/branes-ai/scout-drone/compare/v0.8.2...v0.8.3) (2026-11-05)
 
 
