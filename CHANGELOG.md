@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1](https://github.com/branes-ai/scout-drone/compare/v0.8.0...v0.8.1) (2026-11-05)
+
+
+### Build System
+
+* **deps:** pin anatomy v0.10.0 by its rewritten sha ([#34](https://github.com/branes-ai/scout-drone/issues/34)) ([c61cfe0](https://github.com/branes-ai/scout-drone/commit/c61cfe039b000643efbd1297c92c83afe56f7c16))
+
 ## [0.8.0](https://github.com/branes-ai/scout-drone/compare/v0.7.2...v0.8.0) (2026-11-04)
 
 
