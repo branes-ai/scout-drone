@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.3](https://github.com/branes-ai/scout-drone/compare/v0.8.2...v0.8.3) (2026-11-05)
+
+
+### Continuous Integration
+
+* pin docs-kit and architecture by their rewritten shas ([#38](https://github.com/branes-ai/scout-drone/issues/38)) ([bc77dee](https://github.com/branes-ai/scout-drone/commit/bc77dee2ddfc0daa7aa1b5a27d83adfb0972f910))
+
 ## [0.8.2](https://github.com/branes-ai/scout-drone/compare/v0.8.1...v0.8.2) (2026-11-05)
 
 
