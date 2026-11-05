@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.2](https://github.com/branes-ai/scout-drone/compare/v0.8.1...v0.8.2) (2026-11-05)
+
+
+### Build System
+
+* **deps:** pin reflex by its rewritten sha, over anatomy's ([#36](https://github.com/branes-ai/scout-drone/issues/36)) ([77bd52c](https://github.com/branes-ai/scout-drone/commit/77bd52cfa2f90c042ae2d713c18495975fa433c6))
+
 ## [0.8.1](https://github.com/branes-ai/scout-drone/compare/v0.8.0...v0.8.1) (2026-11-05)
 
 
