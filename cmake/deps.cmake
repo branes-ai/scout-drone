@@ -3,7 +3,8 @@
 # anatomy is the mission framework (racing-drone ADR 0008), pinned to a
 # release commit. It fetches what it builds on itself: yaml-cpp, reflex (the
 # plant and the controller adapters) and Universal. A mission takes reflex at
-# the commit anatomy pins, so the two never disagree.
+# the commit anatomy pins, so the two never disagree, but for the override
+# below.
 include(FetchContent)
 
 # Every pin is a tag or a commit, so a configure fetches only when a pin moves:
@@ -26,6 +27,21 @@ if(SCOUT_BUILD_TESTS AND BUILD_TESTING)
     FetchContent_MakeAvailable(Catch2)
     list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 endif()
+
+# ── branes-ai/reflex — the commit anatomy v0.10.0 pins, by its new SHA ──
+# reflex's history was rewritten to correct its commits' author email, so the
+# commit anatomy v0.10.0 pins (main after reflex#81, v0.10.0) is no longer on
+# reflex main. This declares the same commit by its rewritten SHA; its tree
+# differs only in docs. Declared before anatomy and not made available here,
+# so anatomy's FetchContent_MakeAvailable(reflex) takes this declaration (the
+# first wins) and builds reflex where it always has. Remove it when anatomy is
+# bumped to a release that pins reflex by the rewritten SHA.
+FetchContent_Declare(
+    reflex
+    GIT_REPOSITORY https://github.com/branes-ai/reflex.git
+    GIT_TAG        dc1ecf1e705f967bc6e51a464dea720cf437a071  # main after reflex#81 (v0.10.0)
+    SYSTEM
+)
 
 FetchContent_Declare(
     anatomy
