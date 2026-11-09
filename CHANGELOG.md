@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.4](https://github.com/branes-ai/scout-drone/compare/v0.8.3...v0.8.4) (2026-11-09)
+
+
+### Build System
+
+* **deps:** pin anatomy v0.12.0, and drop the reflex override ([#44](https://github.com/branes-ai/scout-drone/issues/44)) ([ebfdd32](https://github.com/branes-ai/scout-drone/commit/ebfdd32efb150398804572656461491d44758e36))
+
 ## [0.8.3](https://github.com/branes-ai/scout-drone/compare/v0.8.2...v0.8.3) (2026-11-05)
 
 
