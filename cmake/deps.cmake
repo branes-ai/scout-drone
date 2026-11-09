@@ -3,8 +3,7 @@
 # anatomy is the mission framework (racing-drone ADR 0008), pinned to a
 # release commit. It fetches what it builds on itself: yaml-cpp, reflex (the
 # plant and the controller adapters) and Universal. A mission takes reflex at
-# the commit anatomy pins, so the two never disagree, but for the override
-# below.
+# the commit anatomy pins, so the two never disagree.
 include(FetchContent)
 
 # Every pin is a tag or a commit, so a configure fetches only when a pin moves:
