@@ -28,25 +28,10 @@ if(SCOUT_BUILD_TESTS AND BUILD_TESTING)
     list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 endif()
 
-# ── branes-ai/reflex — the commit anatomy v0.10.0 pins, by its new SHA ──
-# reflex's history was rewritten to correct its commits' author email, so the
-# commit anatomy v0.10.0 pins (main after reflex#81, v0.10.0) is no longer on
-# reflex main. This declares the same commit by its rewritten SHA; its tree
-# differs only in docs. Declared before anatomy and not made available here,
-# so anatomy's FetchContent_MakeAvailable(reflex) takes this declaration (the
-# first wins) and builds reflex where it always has. Remove it when anatomy is
-# bumped to a release that pins reflex by the rewritten SHA.
-FetchContent_Declare(
-    reflex
-    GIT_REPOSITORY https://github.com/branes-ai/reflex.git
-    GIT_TAG        dc1ecf1e705f967bc6e51a464dea720cf437a071  # main after reflex#81 (v0.10.0)
-    SYSTEM
-)
-
 FetchContent_Declare(
     anatomy
     GIT_REPOSITORY https://github.com/branes-ai/anatomy.git
-    GIT_TAG        9227629f228caf4e261bd5a9f5828b98d49b699e  # v0.10.0
+    GIT_TAG        97cd9a30445940fb694457b6496ce8f8b35e3cfe  # v0.12.0
     SYSTEM
 )
 FetchContent_MakeAvailable(anatomy)
